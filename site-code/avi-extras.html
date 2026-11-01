@@ -1,4 +1,4 @@
-<!-- AVI SHOP: оплата частинами, термін відправки, «залишилось N шт», компактний банер cookie -->
+<!-- AVI SHOP: термін відправки, «залишилось N шт», компактний банер cookie -->
 <script>
 (function () {
   'use strict';
@@ -6,7 +6,6 @@
   window.__aviExtras = true;
 
   /* ===== НАЛАШТУВАННЯ ===== */
-  var PARTS = 4;               // оплата частинами: кількість платежів
   var CUTOFF_HOUR = 16;        // відправка сьогодні, якщо замовлення до 16:00 (пн–пт)
   var LOW_STOCK = 3;           // показувати «Залишилось N шт», якщо N ≤ 3
   var TZ = 'Europe/Kyiv';
@@ -69,23 +68,8 @@
   var scope = isMobile ? document.querySelector('.product-card--main') : document.querySelector('.product__section--price');
   if (!scope) return;
 
-  /* ---------- Оплата частинами ---------- */
-  var priceMeta = scope.querySelector('meta[itemprop="price"]') || document.querySelector('meta[itemprop="price"]');
-  var price = priceMeta ? parseFloat(priceMeta.getAttribute('content')) : 0;
   var priceBox = isMobile ? scope.querySelector('.product-card__price-box') : scope.querySelector('.product-price');
-  var timer = document.querySelector('.avw-timer');
-  if (price > 0 && priceBox && !document.querySelector('.avx-parts')) {
-    var per = Math.ceil(price / PARTS);
-    var parts = mk('<div class="avx avx-parts"><span class="avx-tag">' + PARTS + ' платежі</span>' +
-      '<span>Оплата частинами: <b>' + PARTS + ' × ' + fmt(per) + ' грн</b></span>' +
-      '<button type="button" class="avx-more">Більше місяців — за домовленістю</button></div>');
-    insertAfter(parts, timer && timer.parentNode === priceBox.parentNode ? timer : priceBox);
-    parts.querySelector('.avx-more').addEventListener('click', function (e) {
-      e.stopPropagation();
-      var fab = document.getElementById('avc-fab');
-      if (fab) { fab.click(); fab.scrollIntoView({ block: 'nearest' }); }
-    });
-  }
+  /* оплата частинами — окремий модуль avi-parts (калькулятор) */
 
   /* ---------- «Залишилось N шт» (працює, коли в Хорошопі увімкнено облік залишків) ---------- */
   var counter = scope.querySelector('[data-max]') || document.querySelector('.j-product-counter[data-max]');

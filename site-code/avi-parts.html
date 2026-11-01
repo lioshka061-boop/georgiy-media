@@ -1,0 +1,178 @@
+<!-- AVI SHOP: калькулятор оплати частинами (сторінка товару + чекаут) -->
+<script>
+(function () {
+  'use strict';
+  if (window.__aviParts) return;
+  window.__aviParts = true;
+
+  /* ===== НАЛАШТУВАННЯ ===== */
+  /* комісія банку з продавця за кількість платежів */
+  var FEE = { 3: 0.037, 4: 0.048, 5: 0.065, 6: 0.077, 7: 0.089, 8: 0.10, 9: 0.113, 10: 0.125, 12: 0.15, 15: 0.183, 18: 0.215, 24: 0.276 };
+  var FREE = 4;            // до скількох платежів комісію повністю платимо ми
+  var DEF = 4;             // що обрано за замовчуванням
+  var METHOD_TEXT = 'Оплата частинами';  // назва способу оплати в чекауті
+  var KEY = 'avx_parts_n';
+  /* ======================== */
+
+  var NS = Object.keys(FEE).map(Number).sort(function (a, b) { return a - b; });
+  /* сума для покупця: ми отримуємо стільки ж, скільки отримали б за 4 платежі */
+  var total = function (price, n) {
+    if (n <= FREE) return Math.ceil(price);
+    return Math.ceil(price * (1 - FEE[FREE]) / (1 - FEE[n]));
+  };
+  var fmt = function (n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); };
+  var plural = function (n) { var a = n % 10, b = n % 100; return (a === 1 && b !== 11) ? 'платіж' : (a >= 2 && a <= 4 && (b < 12 || b > 14)) ? 'платежі' : 'платежів'; };
+  var getN = function () { var v = 0; try { v = parseInt(localStorage.getItem(KEY), 10); } catch (e) {} return FEE[v] ? v : DEF; };
+  var setN = function (n) { try { localStorage.setItem(KEY, String(n)); } catch (e) {} };
+  var mk = function (h) { var d = document.createElement('div'); d.innerHTML = h; return d.firstChild; };
+  var after = function (el, ref) { ref.parentNode.insertBefore(el, ref.nextSibling); return el; };
+
+  var css = '' +
+    '.avp{font-family:Unbounded,Arial,Helvetica,sans-serif;color:#1a1a1a;box-sizing:border-box;margin:12px 0 0;border:1.5px solid #1a1a1a;border-radius:12px;background:#fff;overflow:hidden}' +
+    '.avp *{box-sizing:border-box}' +
+    '.avp-head{display:flex;align-items:center;gap:10px;width:100%;padding:12px 14px;border:0;background:#fff;font:inherit;text-align:left;cursor:pointer}' +
+    '.avp-ico{flex:none;width:34px;height:34px;border-radius:2px;background:#F1C944;display:flex;align-items:center;justify-content:center}' +
+    '.avp-ico svg{width:20px;height:20px}' +
+    '.avp-head-t{flex:1;min-width:0;font-size:13px;line-height:1.35}' +
+    '.avp-head-t b{font-weight:800}' +
+    '.avp-head-t small{display:block;font-size:11px;opacity:.65}' +
+    '.avp-arr{flex:none;font-size:18px;transition:transform .15s}' +
+    '.avp.is-open .avp-arr{transform:rotate(180deg)}' +
+    '.avp-body{display:none;padding:0 14px 14px}' +
+    '.avp.is-open .avp-body,.avp--co .avp-body{display:block}' +
+    '.avp-lbl{font-size:12px;font-weight:600;margin:2px 0 8px;opacity:.75}' +
+    '.avp-chips{display:flex;flex-wrap:wrap;gap:6px}' +
+    '.avp-chip{min-width:44px;height:38px;padding:0 10px;border:1.5px solid #d6d6d6;border-radius:2px;background:#fff;font:700 13px Unbounded,Arial,sans-serif;color:#1a1a1a;cursor:pointer}' +
+    '.avp-chip.is-free{border-color:#1a1a1a}' +
+    '.avp-chip[aria-pressed="true"]{background:#1a1a1a;border-color:#1a1a1a;color:#F1C944}' +
+    '.avp-res{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 12px;margin:12px 0 0;padding:12px;border-radius:2px;background:#f7f7f5}' +
+    '.avp-per{font-size:20px;font-weight:800}' +
+    '.avp-per small{font-size:12px;font-weight:600;opacity:.7}' +
+    '.avp-note{font-size:12px;line-height:1.4}' +
+    '.avp-note .is-free{color:#1f8f4e;font-weight:700}' +
+    '.avp-foot{margin:10px 0 0;font-size:11px;line-height:1.45;opacity:.65}' +
+    '.avp-buy{display:flex;align-items:center;justify-content:center;width:100%;height:46px;margin:12px 0 0;border:0;border-radius:2px;background:#1a1a1a;color:#fff;font:700 14px Unbounded,Arial,sans-serif;cursor:pointer}' +
+    '.avp--co{margin:14px 0 4px}';
+  var st = document.createElement('style');
+  st.textContent = css;
+  document.head.appendChild(st);
+
+  var icon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5.5" width="19" height="13" rx="1.5"/><path d="M2.5 9.5h19M6 14.5h4"/></svg>';
+
+  /* універсальний блок калькулятора */
+  var build = function (opts) {
+    var el = mk('<div class="avp' + (opts.checkout ? ' avp--co' : '') + '">' +
+      (opts.checkout ? '' : '<button type="button" class="avp-head" aria-expanded="false"><span class="avp-ico">' + icon + '</span>' +
+        '<span class="avp-head-t"></span><span class="avp-arr">▾</span></button>') +
+      '<div class="avp-body"><div class="avp-lbl">' + (opts.checkout ? 'Оберіть кількість платежів' : 'Кількість платежів') + '</div>' +
+      '<div class="avp-chips">' + NS.map(function (n) { return '<button type="button" class="avp-chip' + (n <= FREE ? ' is-free' : '') + '" data-n="' + n + '" aria-pressed="false">' + n + '</button>'; }).join('') + '</div>' +
+      '<div class="avp-res"><div class="avp-per"></div><div class="avp-note"></div></div>' +
+      '<div class="avp-foot">До ' + FREE + ' платежів — без переплати, комісію банку платимо ми. Якщо обираєте більше — доплачуєте лише різницю в комісії. Оформлення — менеджер зв’яжеться після замовлення.</div>' +
+      (opts.checkout ? '' : '<button type="button" class="avp-buy">Купити частинами</button>') +
+      '</div></div>');
+    var n = getN();
+    var render = function () {
+      var p = opts.price();
+      if (!(p > 0)) return;
+      var t = total(p, n), per = Math.ceil(t / n), over = t - Math.ceil(p);
+      [].forEach.call(el.querySelectorAll('.avp-chip'), function (c) { c.setAttribute('aria-pressed', String(+c.getAttribute('data-n') === n)); });
+      el.querySelector('.avp-per').innerHTML = fmt(per) + ' грн <small>× ' + n + ' ' + plural(n) + '</small>';
+      el.querySelector('.avp-note').innerHTML = over <= 0
+        ? '<span class="is-free">Без переплати</span> · разом ' + fmt(t) + ' грн'
+        : 'Переплата ' + fmt(over) + ' грн · разом ' + fmt(t) + ' грн';
+      var head = el.querySelector('.avp-head-t');
+      if (head) {
+        var pf = Math.ceil(Math.ceil(p) / FREE);
+        head.innerHTML = '<b>Частинами від ' + fmt(pf) + ' грн/міс</b><small>' + FREE + ' платежі без переплати · до ' + NS[NS.length - 1] + ' платежів</small>';
+      }
+      if (opts.onChange) opts.onChange(n, per, t);
+    };
+    el.addEventListener('click', function (e) {
+      var chip = e.target.closest('.avp-chip');
+      if (chip) { n = +chip.getAttribute('data-n'); setN(n); render(); return; }
+      var h = e.target.closest('.avp-head');
+      if (h) { el.classList.toggle('is-open'); h.setAttribute('aria-expanded', String(el.classList.contains('is-open'))); return; }
+      if (e.target.closest('.avp-buy') && opts.onBuy) { setN(n); opts.onBuy(n); }
+    });
+    el.__render = render;
+    render();
+    return el;
+  };
+
+  /* ---------- сторінка товару ---------- */
+  var sku = document.querySelector('meta[itemprop="sku"]');
+  var isMobile = !!document.querySelector('.product-card--main');
+  var scope = isMobile ? document.querySelector('.product-card--main') : document.querySelector('.product__section--price');
+  if (sku && scope && !document.querySelector('.avp')) {
+    var pm = scope.querySelector('meta[itemprop="price"]') || document.querySelector('meta[itemprop="price"]');
+    var price = pm ? parseFloat(pm.getAttribute('content')) : 0;
+    var inStock = !!document.querySelector('link[itemprop="availability"][href*="InStock"]');
+    var anchor = isMobile ? scope.querySelector('.product-card__price-box') : scope.querySelector('.product-price');
+    var timer = document.querySelector('.avw-timer');
+    if (timer && anchor && timer.parentNode === anchor.parentNode) anchor = timer;
+    if (price > 0 && inStock && anchor) {
+      var box = build({
+        price: function () { return price; },
+        onBuy: function () {
+          var btn = [].filter.call(document.querySelectorAll('.j-buy-button-add, .product-card__order-box .btn--primary'), function (b) { return b.offsetParent !== null; })[0];
+          if (btn) btn.click();
+          setTimeout(function () { location.href = '/checkout/'; }, 900);
+        }
+      });
+      after(box, anchor);
+    }
+  }
+
+  /* ---------- чекаут ---------- */
+  var isCheckout = /\/checkout/.test(location.pathname);
+  if (!isCheckout) return;
+  var form = null, sel = null, co = null, note = '';
+  var cartTotal = function () {
+    var t = document.querySelector('.j-total-sum, .order-summary-b, .order-details__total');
+    return t ? parseFloat(t.textContent.replace(/[^\d.,]/g, '').replace(',', '.')) : 0;
+  };
+  var commentField = function () {
+    return form && (form.querySelector('textarea[name*="comment"]') || form.querySelector('[name*="[comment]"]'));
+  };
+  var writeNote = function (n, per, t) {
+    var c = commentField(); if (!c) return;
+    var line = 'Оплата частинами: ' + n + ' ' + plural(n) + ' по ' + fmt(per) + ' грн (разом ' + fmt(t) + ' грн)';
+    var cur = c.value.replace(/^Оплата частинами:.*$\n?/m, '').trim();
+    c.value = line + (cur ? '\n' + cur : '');
+    note = line;
+  };
+  var clearNote = function () {
+    var c = commentField(); if (!c) return;
+    c.value = c.value.replace(/^Оплата частинами:.*$\n?/m, '').trim();
+  };
+  var isParts = function () {
+    if (!sel) return false;
+    var o = sel.options[sel.selectedIndex];
+    return !!o && o.text.indexOf(METHOD_TEXT) > -1;
+  };
+  var sync = function () {
+    sel = document.querySelector('select[name="Payment[payment_type]"], select[name*="payment_type"]');
+    if (!sel) return;
+    form = sel.form;
+    if (isParts()) {
+      if (!co || !document.body.contains(co)) {
+        co = build({ checkout: true, price: cartTotal, onChange: writeNote });
+        var holder = sel.closest('.form-item, dd, .form__section') || sel.parentNode;
+        after(co, holder);
+      } else co.__render();
+    } else {
+      if (co && co.parentNode) co.parentNode.removeChild(co);
+      co = null;
+      clearNote();
+    }
+  };
+  /* Хорошоп перемальовує блоки чекауту — перевіряємо стан регулярно */
+  setInterval(sync, 700);
+  document.addEventListener('change', function (e) { if (e.target && /payment_type/.test(e.target.name || '')) setTimeout(sync, 50); }, true);
+  if (window.jQuery) window.jQuery(document).on('change', 'select[name*="payment_type"]', function () { setTimeout(sync, 50); });
+  /* перед відправкою — ще раз записати вибір у коментар */
+  document.addEventListener('click', function (e) {
+    if (e.target.closest && e.target.closest('.j-submit') && isParts() && co) co.__render();
+  }, true);
+})();
+</script>
