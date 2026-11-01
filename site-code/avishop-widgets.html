@@ -394,7 +394,7 @@
           return b.offsetParent !== null && !b.classList.contains('j-submit');
         })[0];
       };
-      var newP = card.querySelector('.product-card__price--new');
+      var newP = card.querySelector('.product-card__price--new') || card.querySelector('.product-card__price');
       var oldP = card.querySelector('.product-card__old-price');
       if (primary() && newP) {
         var bar = mk('<div id="avs-bar" role="region" aria-label="Купити"><div class="avs-p"><span class="avs-new"></span>' +
@@ -450,6 +450,139 @@
     document.head.appendChild(ms);
     var od = document.querySelector('.order-details');
     if (od && !document.querySelector('.avt--aside')) insertAfter(mk(trustHtml('avt--aside')), od);
+  }
+})();
+</script>
+<!-- AVI SHOP: оплата частинами, термін відправки, «залишилось N шт», компактний банер cookie -->
+<script>
+(function () {
+  'use strict';
+  if (window.__aviExtras) return;
+  window.__aviExtras = true;
+
+  /* ===== НАЛАШТУВАННЯ ===== */
+  var PARTS = 4;               // оплата частинами: кількість платежів
+  var CUTOFF_HOUR = 16;        // відправка сьогодні, якщо замовлення до 16:00 (пн–пт)
+  var LOW_STOCK = 3;           // показувати «Залишилось N шт», якщо N ≤ 3
+  var TZ = 'Europe/Kyiv';
+  /* ======================== */
+
+  var css = '' +
+    '.avx{font-family:Unbounded,Arial,Helvetica,sans-serif;color:#1a1a1a}' +
+    '.avx-parts{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin:8px 0 0;font-size:13px}' +
+    '.avx-parts b{font-weight:700}' +
+    '.avx-parts .avx-tag{padding:2px 6px;border-radius:2px;background:#1a1a1a;color:#F1C944;font-size:11px;font-weight:700}' +
+    '.avx-more{border:0;padding:0;background:none;font:inherit;font-size:12px;color:#555;text-decoration:underline;text-underline-offset:2px;cursor:pointer}' +
+    '.avx-row{display:flex;align-items:center;gap:10px;margin:12px 0 0;padding:10px 12px;border-radius:2px;background:#f7f7f5;font-size:13px;line-height:1.35}' +
+    '.avx-row svg{flex:none;width:20px;height:20px}' +
+    '.avx-row b{font-weight:700}' +
+    '.avx-ship.is-today{background:#eaf7ee}' +
+    '.avx-ship.is-today svg{color:#1f8f4e}' +
+    '.avx-stock{display:inline-flex;align-items:center;gap:6px;margin:8px 0 0;font-size:13px;font-weight:700;color:#d40000}' +
+    '.avx-stock::before{content:"";width:8px;height:8px;border-radius:50%;background:#d40000}' +
+
+    /* компактний банер cookie: десктоп */
+    '#cookies-panel{height:auto !important;min-height:0 !important;padding:0 !important}' +
+    '#cookies-panel .panel__content{display:flex !important;align-items:center;gap:20px;padding:10px 0 !important}' +
+    '#cookies-panel .text{flex:1;font-size:12px !important;line-height:1.4 !important}' +
+    '#cookies-panel .text p{margin:0 !important;display:inline}' +
+    '#cookies-panel .text p strong{display:none}' +
+    '#cookies-panel .btn{flex:none;margin:0 !important;height:38px !important;padding:0 22px !important;border-radius:2px !important}' +
+    /* компактний банер cookie: мобільна версія (модалка → смужка внизу) */
+    'html.avx-ck .backdrop{opacity:0 !important;pointer-events:none !important}' +
+    'html.avx-ck #cookies-modal{position:fixed !important;inset:auto 0 0 0 !important;height:auto !important;background:transparent !important;display:block !important}' +
+    'html.avx-ck #cookies-modal .modal__box{position:relative !important;inset:auto !important;transform:none !important;width:100% !important;max-width:none !important;margin:0 !important;border-radius:0 !important;padding:10px 16px calc(10px + env(safe-area-inset-bottom)) !important;display:flex !important;align-items:center;gap:12px;background:#fff !important;box-shadow:0 -6px 20px rgba(0,0,0,.12) !important}' +
+    'html.avx-ck #cookies-modal .modal__body,html.avx-ck #cookies-modal .modal__content{padding:0 !important;margin:0 !important;flex:1 1 auto;min-width:0;width:auto !important}' +
+    'html.avx-ck #cookies-modal .text{font-size:11px !important;line-height:1.35 !important;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}' +
+    'html.avx-ck #cookies-modal .text p{margin:0 !important}' +
+    'html.avx-ck #cookies-modal .text p:first-child{display:none}' +
+    'html.avx-ck #cookies-modal .modal__close-button{flex:none;width:auto !important;margin:0 !important;padding:0 !important;position:static !important}' +
+    'html.avx-ck #cookies-modal .modal__close-button .btn{width:auto !important;height:40px !important;padding:0 16px !important;border-radius:2px !important;font-size:13px !important;white-space:nowrap}' +
+    'html.avx-ck,html.avx-ck body{overflow:auto !important;position:static !important}';
+  var st = document.createElement('style');
+  st.textContent = css;
+  document.head.appendChild(st);
+
+  /* мобільна модалка cookie: показуємо смужкою внизу, без затемнення і блокування прокрутки */
+  var ckm = document.getElementById('cookies-modal');
+  if (ckm) {
+    var sync = function () {
+      var on = ckm.classList.contains('is-visible') || ckm.classList.contains('is-active');
+      document.documentElement.classList.toggle('avx-ck', on);
+    };
+    sync();
+    new MutationObserver(sync).observe(ckm, { attributes: true, attributeFilter: ['class'] });
+  }
+
+  var skuMeta = document.querySelector('meta[itemprop="sku"]');
+  if (!skuMeta) return;
+
+  var insertAfter = function (el, ref) { ref.parentNode.insertBefore(el, ref.nextSibling); };
+  var mk = function (html) { var d = document.createElement('div'); d.innerHTML = html; return d.firstChild; };
+  var fmt = function (n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); };
+  var isMobile = !!document.querySelector('.product-card--main');
+  var scope = isMobile ? document.querySelector('.product-card--main') : document.querySelector('.product__section--price');
+  if (!scope) return;
+
+  /* ---------- Оплата частинами ---------- */
+  var priceMeta = scope.querySelector('meta[itemprop="price"]') || document.querySelector('meta[itemprop="price"]');
+  var price = priceMeta ? parseFloat(priceMeta.getAttribute('content')) : 0;
+  var priceBox = isMobile ? scope.querySelector('.product-card__price-box') : scope.querySelector('.product-price');
+  var timer = document.querySelector('.avw-timer');
+  if (price > 0 && priceBox && !document.querySelector('.avx-parts')) {
+    var per = Math.ceil(price / PARTS);
+    var parts = mk('<div class="avx avx-parts"><span class="avx-tag">' + PARTS + ' платежі</span>' +
+      '<span>Оплата частинами: <b>' + PARTS + ' × ' + fmt(per) + ' грн</b></span>' +
+      '<button type="button" class="avx-more">Більше місяців — за домовленістю</button></div>');
+    insertAfter(parts, timer && timer.parentNode === priceBox.parentNode ? timer : priceBox);
+    parts.querySelector('.avx-more').addEventListener('click', function (e) {
+      e.stopPropagation();
+      var fab = document.getElementById('avc-fab');
+      if (fab) { fab.click(); fab.scrollIntoView({ block: 'nearest' }); }
+    });
+  }
+
+  /* ---------- «Залишилось N шт» (працює, коли в Хорошопі увімкнено облік залишків) ---------- */
+  var counter = scope.querySelector('[data-max]') || document.querySelector('.j-product-counter[data-max]');
+  var left = counter ? parseInt(counter.getAttribute('data-max'), 10) : NaN;
+  var inStock = !!document.querySelector('link[itemprop="availability"][href*="InStock"]');
+  if (inStock && left > 0 && left <= LOW_STOCK && !document.querySelector('.avx-stock')) {
+    var stock = mk('<div class="avx avx-stock">Залишилось ' + left + ' шт</div>');
+    insertAfter(stock, document.querySelector('.avx-parts') || priceBox);
+  }
+
+  /* ---------- Термін відправки ---------- */
+  var anchor = isMobile
+    ? (function () { var b = scope.querySelector('.product-card__order-box'); return b; })()
+    : document.querySelector('.product__section--order');
+  if (inStock && anchor && !document.querySelector('.avx-ship')) {
+    var ship = mk('<div class="avx avx-row avx-ship"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h11v9H3V5Zm11 3h3.5L21 11.5V14h-7V8ZM6.5 18.5a1.8 1.8 0 1 0 0-3.6 1.8 1.8 0 0 0 0 3.6Zm11 0a1.8 1.8 0 1 0 0-3.6 1.8 1.8 0 0 0 0 3.6Z" fill="currentColor"/></svg><span class="avx-ship-t"></span></div>');
+    insertAfter(ship, anchor);
+    var txt = ship.querySelector('.avx-ship-t');
+    var now = function () {
+      var p = {};
+      new Intl.DateTimeFormat('en-GB', { timeZone: TZ, hour12: false, weekday: 'short', hour: '2-digit', minute: '2-digit' })
+        .formatToParts(new Date()).forEach(function (x) { p[x.type] = x.value; });
+      return { d: p.weekday, h: +p.hour % 24, m: +p.minute };
+    };
+    var render = function () {
+      var t = now(), wk = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].indexOf(t.d) > -1;
+      var mins = (CUTOFF_HOUR * 60) - (t.h * 60 + t.m);
+      var html, today = false;
+      if (wk && mins > 0) {
+        today = true;
+        var hh = Math.floor(mins / 60), mm = mins % 60;
+        html = '<b>Відправимо сьогодні</b>, якщо замовите протягом ' + (hh ? hh + ' год ' : '') + mm + ' хв';
+      } else if (wk && t.d !== 'Fri') {
+        html = '<b>Відправимо завтра.</b> Замовлення до ' + CUTOFF_HOUR + ':00 у будні — відправка в той же день';
+      } else {
+        html = '<b>Відправимо в понеділок.</b> Замовлення до ' + CUTOFF_HOUR + ':00 у будні — відправка в той же день';
+      }
+      txt.innerHTML = html;
+      ship.classList.toggle('is-today', today);
+    };
+    render();
+    setInterval(render, 30000);
   }
 })();
 </script>
