@@ -21,6 +21,8 @@
     '.avx-row svg{flex:none;width:20px;height:20px}' +
     '.avx-row b{font-weight:700}' +
     '.avx-ship.is-today{background:#eaf7ee}' +
+    '.avx-ship .avx-free{color:#1f8f4e;font-weight:800}' +
+    '.avx-ship{background:#eaf7ee}' + '.avx-ship svg{color:#1f8f4e}' +
     '.avx-ship.is-today svg{color:#1f8f4e}' +
     '.avx-stock{display:inline-flex;align-items:center;gap:6px;margin:8px 0 0;font-size:13px;font-weight:700;color:#d40000}' +
     '.avx-stock::before{content:"";width:8px;height:8px;border-radius:50%;background:#d40000}' +
@@ -107,7 +109,7 @@
       } else {
         html = '<b>Відправимо в понеділок.</b> Замовлення до ' + CUTOFF_HOUR + ':00 у будні — відправка в той же день';
       }
-      txt.innerHTML = html;
+      txt.innerHTML = '<b class="avx-free">Безкоштовна доставка</b> Новою поштою<br>' + html.replace(/<\/?b>/g, '');
       ship.classList.toggle('is-today', today);
     };
     render();

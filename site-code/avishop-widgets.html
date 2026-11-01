@@ -300,7 +300,7 @@
   /* ===== НАЛАШТУВАННЯ ===== */
   var TRUST = [
     { ico: 'shield', t: 'Гарантія 12 місяців', s: 'особисто від Георгія' },
-    { ico: 'truck',  t: 'Доставка Новою Поштою', s: 'по всій Україні' },
+    { ico: 'truck',  t: 'Безкоштовна доставка', s: 'Новою поштою по Україні' },
     { ico: 'back',   t: 'Обмін і повернення', s: '14 днів за законом' }
   ];
   /* ======================== */
@@ -476,6 +476,8 @@
     '.avx-row svg{flex:none;width:20px;height:20px}' +
     '.avx-row b{font-weight:700}' +
     '.avx-ship.is-today{background:#eaf7ee}' +
+    '.avx-ship .avx-free{color:#1f8f4e;font-weight:800}' +
+    '.avx-ship{background:#eaf7ee}' + '.avx-ship svg{color:#1f8f4e}' +
     '.avx-ship.is-today svg{color:#1f8f4e}' +
     '.avx-stock{display:inline-flex;align-items:center;gap:6px;margin:8px 0 0;font-size:13px;font-weight:700;color:#d40000}' +
     '.avx-stock::before{content:"";width:8px;height:8px;border-radius:50%;background:#d40000}' +
@@ -562,7 +564,7 @@
       } else {
         html = '<b>Відправимо в понеділок.</b> Замовлення до ' + CUTOFF_HOUR + ':00 у будні — відправка в той же день';
       }
-      txt.innerHTML = html;
+      txt.innerHTML = '<b class="avx-free">Безкоштовна доставка</b> Новою поштою<br>' + html.replace(/<\/?b>/g, '');
       ship.classList.toggle('is-today', today);
     };
     render();
@@ -589,18 +591,19 @@
   var BENEFITS = [
     { i: 'play',   t: 'Огляд від Георгія',      s: 'Щодня чесні відеоогляди техніки' },
     { i: 'shield', t: 'Гарантія 12 місяців',    s: 'Особисто від Георгія' },
-    { i: 'truck',  t: 'Відправка сьогодні',     s: 'У будні до 16:00, Новою Поштою' },
+    { i: 'truck',  t: 'Безкоштовна доставка',   s: 'Новою поштою, відправка сьогодні' },
     { i: 'card',   t: 'Оплата частинами',       s: '4 платежі без переплати, до 24' },
     { i: 'search', t: 'Привеземо під замовлення', s: 'Немає на сайті? Знайдемо для вас' }
   ];
   var STEPS = [
     { t: 'Обираєте техніку', s: 'Дивіться огляд Георгія або пишіть нам — допоможемо підібрати модель під ваші задачі.' },
-    { t: 'Відправляємо сьогодні', s: 'Замовили в будні до 16:00 — відправимо Новою Поштою в той же день.' },
+    { t: 'Доставляємо безкоштовно', s: 'Замовили в будні до 16:00 — відправимо Новою поштою в той же день. Доставка за наш рахунок.' },
     { t: 'Користуєтесь спокійно', s: '12 місяців гарантії особисто від Георгія і 14 днів на обмін чи повернення.' }
   ];
   var FAQ = [
     ['Яка гарантія на техніку?', 'На всі товари діє гарантія 12 місяців особисто від Георгія. Якщо з технікою щось не так — пишіть нам, вирішимо.'],
-    ['Як швидко ви відправляєте замовлення?', 'Якщо замовлення оформлене в будній день до 16:00 — відправляємо Новою Поштою в той же день. Замовлення у вихідні відправляємо в понеділок.'],
+    ['Скільки коштує доставка?', 'Доставка Новою поштою по всій Україні безкоштовна — у відділення, поштомат або кур’єром. Якщо оплачуєте при отриманні, Нова пошта бере лише свою комісію за грошовий переказ.'],
+    ['Як швидко ви відправляєте замовлення?', 'Якщо замовлення оформлене в будній день до 16:00 — відправляємо Новою поштою в той же день. Замовлення у вихідні відправляємо в понеділок.'],
     ['Чи можна оплатити частинами?', 'Так. До 4 платежів — без переплати, комісію банку платимо ми. Можна обрати і більше, до 24 платежів — тоді доплачуєте лише різницю в комісії. Калькулятор є на сторінці кожного товару.'],
     ['Чи можна повернути або обміняти товар?', 'Так, протягом 14 днів ви можете обміняти або повернути товар відповідно до закону про захист прав споживачів.'],
     ['Що робити, якщо потрібного товару немає на сайті?', 'Напишіть нам у Telegram, Viber чи WhatsApp — знайдемо потрібну модель і привеземо під замовлення.'],
@@ -823,6 +826,13 @@
     '.avp .avp-buy{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:48px;margin:10px 0 0;border:0;border-radius:2px;background:#F1C944;color:#1a1a1a;font:700 15px Unbounded,Arial,sans-serif;cursor:pointer}' +
     '.avp .avp-buy:active{background:#e6bb2f}' +
     '.avp--co{margin:12px 0 4px}' +
+    '.avp-sum{box-sizing:border-box;margin:10px 0 0;padding:10px 12px;border-radius:2px;background:#e8f5ec;color:#1a1a1a;font:400 12px/1.45 Unbounded,Arial,sans-serif}' +
+    '.avp-sum b{color:#1f8f4e;font-size:15px;font-weight:800}' +
+    '.avp-sum small{display:block;color:#6b6b6b;font-size:11px;margin-top:2px}' +
+    '.avp-hint{box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px;padding:10px 12px;border-radius:2px;background:#fff8dc;border:1px solid #F1C944;font:400 12px/1.4 Unbounded,Arial,sans-serif;color:#1a1a1a}' +
+    '.avp-hint button{flex:none;border:0;border-radius:2px;background:#1a1a1a;color:#fff;font:700 12px Unbounded,Arial,sans-serif;padding:9px 12px;cursor:pointer}' +
+    '.avp-done{box-sizing:border-box;margin:16px 0;padding:14px 16px;border-radius:12px;background:#e8f5ec;font:400 13px/1.5 Unbounded,Arial,sans-serif;color:#1a1a1a}' +
+    '.avp-done b{color:#1f8f4e}' +
     /* мобільна тема: однакові гострі кути кнопок на сторінці товару */
     '.product-card__order-box .btn,.product-card__order-box .counter,.product-card__order-box .counter__btn,.product-card__order-box .counter__input{border-radius:2px !important}';
   var st = document.createElement('style');
@@ -887,6 +897,7 @@
       var box = build({
         price: function () { return price; },
         onBuy: function () {
+          try { localStorage.setItem('avx_parts_go', String(Date.now())); } catch (e) {}
           var btn = [].filter.call(document.querySelectorAll('.j-buy-button-add, .product-card__order-box .btn--primary'), function (b) { return b.offsetParent !== null; })[0];
           if (btn) btn.click();
           setTimeout(function () { location.href = '/checkout/'; }, 900);
@@ -896,10 +907,28 @@
     }
   }
 
+  /* ---------- сторінка «Дякуємо за замовлення» ---------- */
+  var LAST = 'avx_parts_last';
+  var showDone = function () {
+    var raw = null; try { raw = sessionStorage.getItem(LAST); } catch (e) {}
+    if (!raw) return;
+    var back = [].filter.call(document.querySelectorAll('a,button'), function (x) { return /Повернутись до покупок/.test(x.textContent); })[0];
+    if (!back || document.querySelector('.avp-done')) return;
+    var d = JSON.parse(raw);
+    if (Date.now() - d.ts > 3600000) { try { sessionStorage.removeItem(LAST); } catch (e) {} return; }
+    var box = mk('<div class="avp-done"><b>Оплата частинами: ' + d.n + ' ' + plural(d.n) + ' по ' + fmt(d.per) + ' грн</b><br>' +
+      'Вартість товару — ' + fmt(d.price) + ' грн' + (d.t > d.price ? ', разом з комісією банку — ' + fmt(d.t) + ' грн' : ', без переплати') +
+      '.<br>Менеджер зв’яжеться з вами, щоб оформити розстрочку.</div>');
+    back.parentNode.insertBefore(box, back);
+    try { sessionStorage.removeItem(LAST); } catch (e) {}
+  };
+  showDone();
+  setTimeout(showDone, 1500);
+
   /* ---------- чекаут ---------- */
   var isCheckout = /\/checkout/.test(location.pathname);
   if (!isCheckout) return;
-  var form = null, sel = null, co = null, note = '';
+  var form = null, sel = null, co = null, sum = null, hint = null, last = null;
   var cartTotal = function () {
     var t = document.querySelector('.j-total-sum, .order-summary-b, .order-details__total');
     return t ? parseFloat(t.textContent.replace(/[^\d.,]/g, '').replace(',', '.')) : 0;
@@ -908,23 +937,80 @@
     return form && (form.querySelector('textarea[name*="comment"]') || form.querySelector('[name*="[comment]"]'));
   };
   var writeNote = function (n, per, t) {
-    var c = commentField(); if (!c) return;
-    var line = 'Оплата частинами: ' + n + ' ' + plural(n) + ' по ' + fmt(per) + ' грн (разом ' + fmt(t) + ' грн)';
-    var cur = c.value.replace(/^Оплата частинами:.*$\n?/m, '').trim();
-    c.value = line + (cur ? '\n' + cur : '');
-    note = line;
+    last = { n: n, per: per, t: t, price: Math.ceil(cartTotal()), ts: Date.now() };
+    var c = commentField();
+    if (c) {
+      var line = 'Оплата частинами: ' + n + ' ' + plural(n) + ' по ' + fmt(per) + ' грн (разом ' + fmt(t) + ' грн)';
+      var cur = c.value.replace(/^Оплата частинами:.*$\n?/m, '').trim();
+      c.value = line + (cur ? '\n' + cur : '');
+    }
+    /* підсумок під «Всього» — щоб покупець бачив, що реально платитиме */
+    var tot = document.querySelector('.order-summary') || (document.querySelector('.order-details__total') || {}).parentNode;
+    if (tot) {
+      if (!sum || !document.body.contains(sum)) { sum = mk('<div class="avp-sum"></div>'); tot.parentNode.insertBefore(sum, tot.nextSibling); }
+      sum.innerHTML = 'Частинами: <b>' + fmt(per) + ' грн × ' + n + '</b>' +
+        '<small>' + (t > last.price ? 'Разом з комісією банку ' + fmt(t) + ' грн. Сума замовлення — вартість товару, комісію сплачуєте банку.' : 'Без переплати — комісію банку платимо ми.') + '</small>';
+    }
   };
   var clearNote = function () {
-    var c = commentField(); if (!c) return;
-    c.value = c.value.replace(/^Оплата частинами:.*$\n?/m, '').trim();
+    var c = commentField();
+    if (c) c.value = c.value.replace(/^Оплата частинами:.*$\n?/m, '').trim();
+    if (sum && sum.parentNode) sum.parentNode.removeChild(sum);
+    sum = null; last = null;
   };
   var isParts = function () {
     if (!sel) return false;
     var o = sel.options[sel.selectedIndex];
     return !!o && o.text.indexOf(METHOD_TEXT) > -1;
   };
+  var pickParts = function () {
+    if (!sel) return false;
+    var o = [].filter.call(sel.options, function (x) { return x.text.indexOf(METHOD_TEXT) > -1; })[0];
+    if (!o) return false;
+    if (sel.value !== o.value) {
+      sel.value = o.value;
+      if (window.jQuery) window.jQuery(sel).trigger('change'); else sel.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    return true;
+  };
+  /* вкладка «Детальне замовлення» (мобільна) / «Я новий покупець» (ПК) — там є вибір оплати */
+  var fullTab = function () {
+    return [].filter.call(document.querySelectorAll('.tabs__item, .checkout-tabs-i'), function (x) {
+      return /Детальне замовлення|Я новий покупець/.test(x.textContent);
+    })[0];
+  };
+  var quickActive = function () {
+    var q = [].filter.call(document.querySelectorAll('.tabs__item.is-active, .checkout-tabs-i.active, .checkout-tabs-i.is-active'), function (x) { return /Замовити швидко|Швидке замовлення/.test(x.textContent); })[0];
+    return !!q;
+  };
+  var wanted = function () {
+    var v = 0; try { v = +localStorage.getItem('avx_parts_go') || 0; } catch (e) {}
+    return v && Date.now() - v < 3600000;
+  };
   var sync = function () {
     sel = document.querySelector('select[name="Payment[payment_type]"], select[name*="payment_type"]');
+    /* прийшли через «Купити частинами» — відкриваємо повне оформлення й обираємо оплату частинами */
+    if (wanted()) {
+      var ft = fullTab();
+      if (ft && quickActive()) ft.click();
+      if (pickParts()) { try { localStorage.removeItem('avx_parts_go'); } catch (e) {} }
+    }
+    /* підказка на «швидкому» замовленні, де оплату не обрати */
+    if (quickActive() && fullTab()) {
+      if (!hint || !document.body.contains(hint)) {
+        var qf = document.querySelector('[name^="Quick["]');
+        var qform = qf && qf.form;
+        if (qform) {
+          hint = mk('<div class="avp-hint"><span>Хочете оплатити частинами?</span><button type="button">Обрати оплату</button></div>');
+          hint.querySelector('button').addEventListener('click', function () {
+            try { localStorage.setItem('avx_parts_go', String(Date.now())); } catch (e) {}
+            var ft = fullTab(); if (ft) ft.click();
+            setTimeout(sync, 300);
+          });
+          qform.insertBefore(hint, qform.firstChild);
+        }
+      }
+    }
     if (!sel) return;
     form = sel.form;
     if (isParts()) {
@@ -941,11 +1027,88 @@
   };
   /* Хорошоп перемальовує блоки чекауту — перевіряємо стан регулярно */
   setInterval(sync, 700);
+  sync();
   document.addEventListener('change', function (e) { if (e.target && /payment_type/.test(e.target.name || '')) setTimeout(sync, 50); }, true);
   if (window.jQuery) window.jQuery(document).on('change', 'select[name*="payment_type"]', function () { setTimeout(sync, 50); });
-  /* перед відправкою — ще раз записати вибір у коментар */
+  /* перед відправкою — ще раз записати вибір у коментар і запам’ятати для сторінки «Дякуємо» */
   document.addEventListener('click', function (e) {
-    if (e.target.closest && e.target.closest('.j-submit') && isParts() && co) co.__render();
+    var btn = e.target.closest && e.target.closest('.j-submit');
+    if (!btn) return;
+    var bf = btn.form || btn.closest('form');
+    if (isParts() && co && (!bf || bf === form)) {
+      co.__render();
+      try { if (last) sessionStorage.setItem(LAST, JSON.stringify(last)); } catch (x) {}
+    } else {
+      try { sessionStorage.removeItem(LAST); } catch (x) {}
+    }
   }, true);
+})();
+</script>
+<!-- AVI SHOP: блок «Безкоштовна доставка» на сторінці товару -->
+<script>
+(function () {
+  'use strict';
+  if (window.__aviDelivery) return;
+  window.__aviDelivery = true;
+  if (!document.querySelector('meta[itemprop="sku"]')) return;
+
+  var path = function (d) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>'; };
+  var I = {
+    truck: path('<path d="M2 6h11v9H2z"/><path d="M13 9h4l3 3.5V15h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/>'),
+    clock: path('<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>'),
+    box: path('<path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5z"/><path d="M3.5 7.5 12 12l8.5-4.5M12 12v9"/>'),
+    eye: path('<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/>')
+  };
+
+  var css = '' +
+    '.avd{box-sizing:border-box;font-family:Unbounded,Arial,Helvetica,sans-serif;color:#1a1a1a;background:#fff;border-radius:12px;padding:18px 20px;margin:16px 0 0}' +
+    '.avd *{box-sizing:border-box}' +
+    '.avd-top{display:flex;align-items:center;gap:12px}' +
+    '.avd-ico{flex:none;width:44px;height:44px;border-radius:2px;background:#F1C944;color:#1a1a1a;display:flex;align-items:center;justify-content:center}' +
+    '.avd-ico svg{width:24px;height:24px}' +
+    '.avd-h{flex:1;min-width:0}' +
+    '.avd-h b{display:block;font-size:16px;font-weight:800;line-height:1.2}' +
+    '.avd-h small{display:block;margin-top:3px;font-size:12px;color:#6b6b6b;line-height:1.35}' +
+    '.avd-tag{flex:none;padding:6px 10px;border-radius:2px;background:#e8f5ec;color:#1f8f4e;font-size:13px;font-weight:800;white-space:nowrap}' +
+    '.avd-list{list-style:none;margin:16px 0 0;padding:14px 0 0;border-top:1px solid #f0f0f0;display:grid;gap:12px}' +
+    '.avd-list li{display:flex;align-items:flex-start;gap:10px;margin:0;padding:0;font-size:12.5px;line-height:1.4;color:#444}' +
+    '.avd-list li:before{display:none}' +
+    '.avd-list i{flex:none;width:20px;height:20px;color:#1a1a1a;margin-top:1px}' +
+    '.avd-list i svg{width:20px;height:20px}' +
+    '.avd-list b{color:#1a1a1a;font-weight:700}' +
+    '.avd--m{margin:12px 0 0;padding:14px;border:1px solid #ececec}' +
+    '.avd--m .avd-ico{width:40px;height:40px}' +
+    '.avd--m .avd-h b{font-size:15px}' +
+    '.avd--m .avd-list{margin-top:12px;padding-top:12px;gap:10px}';
+  var st = document.createElement('style');
+  st.textContent = css;
+  document.head.appendChild(st);
+
+  var html = function (mob) {
+    return '<div class="avd' + (mob ? ' avd--m' : '') + '">' +
+      '<div class="avd-top"><span class="avd-ico">' + I.truck + '</span>' +
+      '<div class="avd-h"><b>Безкоштовна доставка</b><small>по всій Україні Новою поштою</small></div>' +
+      '<span class="avd-tag">0 грн</span></div>' +
+      '<ul class="avd-list">' +
+      '<li><i>' + I.clock + '</i><span><b>Відправка сьогодні</b> — якщо замовите в будні до 16:00</span></li>' +
+      '<li><i>' + I.box + '</i><span><b>1–3 дні в дорозі</b> — у відділення, поштомат або кур’єром</span></li>' +
+      '<li><i>' + I.eye + '</i><span><b>Огляд при отриманні</b> — оплата онлайн, при отриманні або частинами</span></li>' +
+      '</ul></div>';
+  };
+  var mk = function (h) { var d = document.createElement('div'); d.innerHTML = h; return d.firstChild; };
+
+  var place = function () {
+    if (document.querySelector('.avd')) return true;
+    var isMobile = !!document.querySelector('.product-card--main');
+    /* на телефоні безкоштовна доставка — у зеленому рядку «Відправимо сьогодні» (avi-extras) */
+    if (isMobile) return true;
+    var col = document.querySelector('.j-product-left-column');
+    if (!col) return false;
+    col.appendChild(mk(html(false)));
+    return true;
+  };
+  if (!place()) {
+    var n = 0, t = setInterval(function () { if (place() || ++n > 20) clearInterval(t); }, 300);
+  }
 })();
 </script>

@@ -54,13 +54,8 @@
   var place = function () {
     if (document.querySelector('.avd')) return true;
     var isMobile = !!document.querySelector('.product-card--main');
-    if (isMobile) {
-      var ref = document.querySelector('.product-card--main .avt') ||
-        document.querySelector('.product-card--main .product-card__order-box');
-      if (!ref) return false;
-      ref.parentNode.insertBefore(mk(html(true)), ref.nextSibling);
-      return true;
-    }
+    /* на телефоні безкоштовна доставка — у зеленому рядку «Відправимо сьогодні» (avi-extras) */
+    if (isMobile) return true;
     var col = document.querySelector('.j-product-left-column');
     if (!col) return false;
     col.appendChild(mk(html(false)));
