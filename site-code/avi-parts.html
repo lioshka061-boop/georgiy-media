@@ -35,7 +35,7 @@
     '.avp-head{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border:0;border-radius:0;background:#fff;font:inherit;text-align:left;cursor:pointer}' +
     '.avp-ico{flex:none;width:32px;height:32px;border-radius:2px;background:#F1C944;color:#1a1a1a;display:flex;align-items:center;justify-content:center}' +
     '.avp-ico svg{width:18px;height:18px;stroke:#1a1a1a}' +
-    '.avp-head-t{flex:1;min-width:0;font-size:13px;line-height:1.35;color:#1a1a1a}' +
+    '.avp-head-t{flex:1;min-width:0;font-size:12.5px;line-height:1.35;color:#1a1a1a}' +
     '.avp-head-t b{font-weight:700}' +
     '.avp-head-t small{display:block;font-size:11px;color:#6b6b6b}' +
     '.avp-arr{flex:none;width:18px;height:18px;color:#1a1a1a;transition:transform .15s}' +
@@ -46,7 +46,8 @@
     '.avp-lbl{font-size:12px;font-weight:600;margin:10px 0 8px;color:#6b6b6b}' +
     '.avp--co .avp-lbl{margin-top:0}' +
     '.avp-chips{display:flex;flex-wrap:wrap;gap:6px}' +
-    '.avp-chip{flex:1 0 40px;max-width:56px;height:36px;padding:0 6px;border:1px solid #dcdcdc;border-radius:2px;background:#fff;font:600 13px Unbounded,Arial,sans-serif;cursor:pointer}' +
+    '.avp-chip{flex:1 1 0;min-width:0;max-width:60px;height:36px;padding:0;border:1px solid #dcdcdc;border-radius:2px;background:#fff;font:600 13px Unbounded,Arial,sans-serif;cursor:pointer}' +
+    '.avp--co .avp-chip{flex:0 0 calc((100% - 30px) / 6);max-width:none}' +
     '.avp-chip[aria-pressed="true"]{background:#1a1a1a;border-color:#1a1a1a;color:#fff}' +
     '.avp-res{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 12px;margin:10px 0 0;padding:10px 12px;border-radius:2px;background:#f7f7f5}' +
     '.avp-per{font-size:18px;font-weight:700}' +
@@ -73,7 +74,7 @@
       '<div class="avp-body"><div class="avp-lbl">' + (opts.checkout ? 'Оберіть кількість платежів' : 'Кількість платежів') + '</div>' +
       '<div class="avp-chips">' + (opts.checkout ? NS : NS_SHORT).map(function (n) { return '<button type="button" class="avp-chip" data-n="' + n + '" aria-pressed="false">' + n + '</button>'; }).join('') + '</div>' +
       '<div class="avp-res"><div class="avp-per"></div><div class="avp-note"></div></div>' +
-      '<div class="avp-foot">До ' + FREE + ' платежів комісію банку платимо ми. Більше платежів — доплачуєте лише різницю. Менеджер зв’яжеться для оформлення.</div>' +
+      '<div class="avp-foot">До 4 платежів комісію банку платимо ми. Оформлення — з менеджером після замовлення.</div>' +
       (opts.checkout ? '' : '<button type="button" class="avp-buy">Купити частинами</button>') +
       '</div></div>');
     var n = getN();
@@ -90,7 +91,7 @@
       var head = el.querySelector('.avp-head-t');
       if (head) {
         var pf = Math.ceil(Math.ceil(p) / FREE);
-        head.innerHTML = '<b>Частинами від ' + fmt(pf) + ' грн/міс</b><small>' + FREE + ' платежі без переплати · до ' + NS[NS.length - 1] + ' платежів</small>';
+        head.innerHTML = '<b>Частинами від ' + fmt(pf) + ' грн/міс</b><small>' + FREE + ' платежі без переплати</small>';
       }
       if (opts.onChange) opts.onChange(n, per, t);
     };
