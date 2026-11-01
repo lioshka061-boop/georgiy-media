@@ -586,3 +586,195 @@
   }
 })();
 </script>
+<!-- AVI SHOP: головна — переваги, огляди Георгія, як ми працюємо, про Георгія, FAQ -->
+<script>
+(function () {
+  'use strict';
+  if (window.__aviHome) return;
+  var path = location.pathname.replace(/\/+$/, '');
+  if (path !== '' && path !== '/ua' && path !== '/uk') return;
+  window.__aviHome = true;
+
+  var REVIEWS_URL = 'https://raw.githubusercontent.com/lioshka061-boop/georgiy-media/main/reviews.json';
+  var GEORGIY_IMG = '/content/images/27/480x216e90nn0/98815368144409.webp';
+  var SOCIALS = [
+    { n: 'TikTok', u: 'https://www.tiktok.com/@avishop.com.ua' },
+    { n: 'Instagram', u: 'https://www.instagram.com/avishop.com.ua/' },
+    { n: 'Threads', u: 'https://www.threads.com/@avishop.com.ua' }
+  ];
+  var BENEFITS = [
+    { i: 'play',   t: 'Огляд від Георгія',      s: 'Щодня чесні відеоогляди техніки' },
+    { i: 'shield', t: 'Гарантія 12 місяців',    s: 'Особисто від Георгія' },
+    { i: 'truck',  t: 'Відправка сьогодні',     s: 'У будні до 16:00, Новою Поштою' },
+    { i: 'card',   t: 'Оплата частинами',       s: '4 платежі, більше — за домовленістю' },
+    { i: 'search', t: 'Привеземо під замовлення', s: 'Немає на сайті? Знайдемо для вас' }
+  ];
+  var STEPS = [
+    { t: 'Обираєте техніку', s: 'Дивіться огляд Георгія або пишіть нам — допоможемо підібрати модель під ваші задачі.' },
+    { t: 'Відправляємо сьогодні', s: 'Замовили в будні до 16:00 — відправимо Новою Поштою в той же день.' },
+    { t: 'Користуєтесь спокійно', s: '12 місяців гарантії особисто від Георгія і 14 днів на обмін чи повернення.' }
+  ];
+  var FAQ = [
+    ['Яка гарантія на техніку?', 'На всі товари діє гарантія 12 місяців особисто від Георгія. Якщо з технікою щось не так — пишіть нам, вирішимо.'],
+    ['Як швидко ви відправляєте замовлення?', 'Якщо замовлення оформлене в будній день до 16:00 — відправляємо Новою Поштою в той же день. Замовлення у вихідні відправляємо в понеділок.'],
+    ['Чи можна оплатити частинами?', 'Так, техніку можна оплатити частинами на 4 платежі. Якщо потрібно більше місяців — домовимося індивідуально.'],
+    ['Чи можна повернути або обміняти товар?', 'Так, протягом 14 днів ви можете обміняти або повернути товар відповідно до закону про захист прав споживачів.'],
+    ['Що робити, якщо потрібного товару немає на сайті?', 'Напишіть нам у Telegram, Viber чи WhatsApp — знайдемо потрібну модель і привеземо під замовлення.'],
+    ['Хто такий Георгій?', 'Георгій — обличчя магазину і герой вітчизняної торгівлі. Він сам тестує техніку у відеооглядах, чесно говорить про плюси й мінуси і особисто відповідає за гарантію.']
+  ];
+
+  var ICO = {
+    play:   '<rect x="3" y="5" width="18" height="13" rx="1.5"/><path d="M10 9.2v5.6l4.6-2.8z" fill="currentColor" stroke="none"/><path d="M8 21h8"/>',
+    shield: '<path d="M12 3 5 6v5c0 4.4 3 8.3 7 9.5 4-1.2 7-5.1 7-9.5V6l-7-3z"/><path d="m9 12 2 2 4-4"/>',
+    truck:  '<path d="M2 6h11v9H2z"/><path d="M13 9h4l3 3.5V15h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/>',
+    card:   '<rect x="2.5" y="5.5" width="19" height="13" rx="1.5"/><path d="M2.5 9.5h19"/><path d="M6 14.5h4"/>',
+    search: '<path d="M4 8.5 11 5l7 3.5v7L11 19l-7-3.5z"/><path d="M4 8.5l7 3.5 7-3.5M11 12v7"/><circle cx="18.5" cy="17.5" r="2.5" fill="#fff"/><path d="m20.3 19.3 1.7 1.7"/>'
+  };
+  var icon = function (k) {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICO[k] + '</svg>';
+  };
+  var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+
+  var css = '' +
+    '.avh{font-family:Unbounded,Arial,Helvetica,sans-serif;color:#1a1a1a;box-sizing:border-box}' +
+    '.avh *{box-sizing:border-box}' +
+    '.avh-wrap{max-width:1360px;margin:0 auto;padding:0 20px}' +
+    '.avh-sec{padding:40px 0}' +
+    '.avh-h{margin:0 0 6px;font-size:26px;font-weight:800;line-height:1.2}' +
+    '.avh-sub{margin:0 0 22px;font-size:14px;opacity:.7;line-height:1.5}' +
+    /* переваги */
+    '.avh-ben{background:#fff;padding:26px 0}' +
+    '.avh-ben-list{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin:0;padding:0;list-style:none}' +
+    '.avh-ben-i{display:flex;align-items:center;gap:12px}' +
+    '.avh-ben-ico{flex:none;width:52px;height:52px;border-radius:2px;background:#F1C944;display:flex;align-items:center;justify-content:center}' +
+    '.avh-ben-ico svg{width:28px;height:28px}' +
+    '.avh-ben-i b{display:block;font-size:13px;font-weight:700;line-height:1.25}' +
+    '.avh-ben-i small{display:block;margin-top:2px;font-size:11px;line-height:1.35;opacity:.65}' +
+    /* огляди */
+    '.avh-rev{background:#1a1a1a;color:#fff}' +
+    '.avh-rev .avh-h{color:#F1C944}' +
+    '.avh-rev-row{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(220px,1fr);gap:16px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x mandatory}' +
+    '.avh-card{scroll-snap-align:start;background:#262626;border-radius:12px;overflow:hidden;display:flex;flex-direction:column}' +
+    '.avh-vid{position:relative;aspect-ratio:9/16;background:#000;cursor:pointer}' +
+    '.avh-vid video{width:100%;height:100%;object-fit:cover;display:block}' +
+    '.avh-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(transparent 55%,rgba(0,0,0,.6));border:0;color:#fff;cursor:pointer}' +
+    '.avh-play span{width:58px;height:58px;border-radius:2px;background:#F1C944;color:#1a1a1a;display:flex;align-items:center;justify-content:center}' +
+    '.avh-play svg{width:26px;height:26px}' +
+    '.avh-card.is-playing .avh-play{display:none}' +
+    '.avh-rate{position:absolute;top:10px;left:10px;padding:4px 8px;border-radius:2px;background:#F1C944;color:#1a1a1a;font-size:12px;font-weight:800}' +
+    '.avh-card-b{padding:12px 14px 14px;display:flex;flex-direction:column;gap:10px;flex:1}' +
+    '.avh-card-b b{font-size:13px;line-height:1.3}' +
+    '.avh-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:42px;padding:0 18px;border-radius:2px;background:#F1C944;color:#1a1a1a !important;font-size:13px;font-weight:700;text-decoration:none !important;border:0;cursor:pointer}' +
+    '.avh-btn--ghost{background:transparent;color:#fff !important;border:1.5px solid rgba(255,255,255,.5)}' +
+    '.avh-btn--dark{background:#1a1a1a;color:#fff !important}' +
+    '.avh-card .avh-btn{margin-top:auto}' +
+    '.avh-rev-foot{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}' +
+    /* як працюємо */
+    '.avh-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}' +
+    '.avh-step{background:#fff;border-radius:12px;padding:22px}' +
+    '.avh-step i{display:inline-flex;width:36px;height:36px;border-radius:2px;background:#1a1a1a;color:#F1C944;font-style:normal;font-weight:800;align-items:center;justify-content:center;margin-bottom:12px}' +
+    '.avh-step b{display:block;font-size:16px;margin-bottom:6px}' +
+    '.avh-step p{margin:0;font-size:13px;line-height:1.55;opacity:.75}' +
+    /* про Георгія */
+    '.avh-about{display:grid;grid-template-columns:1.1fr 1fr;gap:0;background:#fff;border-radius:12px;overflow:hidden}' +
+    '.avh-about-t{padding:32px}' +
+    '.avh-about-t p{font-size:14px;line-height:1.6;margin:0 0 12px}' +
+    '.avh-about-img{background:#F1C944 center/cover no-repeat;min-height:260px}' +
+    '.avh-soc{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}' +
+    /* FAQ */
+    '.avh-faq{display:grid;gap:8px}' +
+    '.avh-faq details{background:#fff;border-radius:12px;padding:0 18px}' +
+    '.avh-faq summary{list-style:none;cursor:pointer;padding:16px 28px 16px 0;font-weight:700;font-size:14px;position:relative}' +
+    '.avh-faq summary::-webkit-details-marker{display:none}' +
+    '.avh-faq summary::after{content:"+";position:absolute;right:0;top:12px;font-size:22px;font-weight:400}' +
+    '.avh-faq details[open] summary::after{content:"−"}' +
+    '.avh-faq p{margin:0 0 16px;font-size:13px;line-height:1.6;opacity:.8}' +
+    /* адаптив */
+    '@media (max-width:1100px){.avh-ben-list{grid-template-columns:repeat(3,1fr)}}' +
+    '@media (max-width:760px){.avh-sec{padding:28px 0}.avh-h{font-size:21px}.avh-ben{padding:16px 0}.avh-ben-list{display:flex;overflow-x:auto;gap:10px;scroll-snap-type:x mandatory;padding-bottom:4px}.avh-ben-i{flex:0 0 148px;flex-direction:column;align-items:flex-start;gap:8px;scroll-snap-align:start;background:#f7f7f5;border-radius:12px;padding:12px}' +
+      '.avh-steps{grid-template-columns:1fr}.avh-about{grid-template-columns:1fr}.avh-about-img{min-height:180px;order:-1}.avh-about-t{padding:22px}.avh-rev-row{grid-auto-columns:72%}}';
+  var st = document.createElement('style');
+  st.textContent = css;
+  document.head.appendChild(st);
+
+  var mk = function (h) { var d = document.createElement('div'); d.innerHTML = h; return d.firstChild; };
+  var after = function (el, ref) { ref.parentNode.insertBefore(el, ref.nextSibling); return el; };
+
+  /* точки вставки: десктоп і мобільна версії */
+  var oldBen = document.querySelector('section.benefits, .benefits');
+  var banners = document.querySelector('.banners-group');
+  var promo = document.querySelector('section.promo, section.storefront');
+  var cats = document.querySelector('section.frontCategories, section.popular-categories');
+  var info = document.querySelector('section.frontInfo, section.about');
+  var main = document.querySelector('main') || document.body;
+
+  /* 1. переваги */
+  var ben = mk('<section class="avh avh-ben"><div class="avh-wrap"><ul class="avh-ben-list">' + BENEFITS.map(function (b) {
+    return '<li class="avh-ben-i"><span class="avh-ben-ico">' + icon(b.i) + '</span><span><b>' + b.t + '</b><small>' + b.s + '</small></span></li>';
+  }).join('') + '</ul></div></section>');
+  if (oldBen) { oldBen.parentNode.insertBefore(ben, oldBen); oldBen.style.display = 'none'; }
+  else if (banners) after(ben, banners);
+  else main.insertBefore(ben, main.firstChild);
+
+  /* 2. огляди Георгія */
+  var rev = mk('<section class="avh avh-sec avh-rev" id="ohliady"><div class="avh-wrap">' +
+    '<h2 class="avh-h">Георгій вже оглянув</h2><p class="avh-sub">Чесні відеоогляди техніки з нашого каталогу — з плюсами, мінусами та оцінкою.</p>' +
+    '<div class="avh-rev-row"></div><div class="avh-rev-foot">' +
+    '<a class="avh-btn" href="' + SOCIALS[0].u + '" target="_blank" rel="noopener">Більше оглядів у TikTok</a>' +
+    '<a class="avh-btn avh-btn--ghost" href="' + SOCIALS[1].u + '" target="_blank" rel="noopener">Instagram</a></div></div></section>');
+  var revAnchor = promo || ben;
+  after(rev, revAnchor);
+  rev.style.display = 'none';
+  var playSvg = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+  fetch(REVIEWS_URL + '?h=' + Math.floor(Date.now() / 3600000)).then(function (r) { return r.ok ? r.json() : null; }).then(function (list) {
+    if (!list) return;
+    var items = Object.keys(list).map(function (k) { var x = list[k]; x.sku = k; return x; })
+      .filter(function (x) { return x.video && x.url; })
+      .sort(function (a, b) { return String(b.date || '').localeCompare(String(a.date || '')); }).slice(0, 8);
+    if (!items.length) return;
+    rev.querySelector('.avh-rev-row').innerHTML = items.map(function (x) {
+      return '<article class="avh-card"><div class="avh-vid"><video src="' + esc(x.video) + '#t=0.5" preload="metadata" playsinline></video>' +
+        (x.rating ? '<span class="avh-rate">' + x.rating + '/10</span>' : '') +
+        '<button type="button" class="avh-play" aria-label="Дивитись огляд ' + esc(x.name) + '"><span>' + playSvg + '</span></button></div>' +
+        '<div class="avh-card-b"><b>' + esc(x.name) + '</b><a class="avh-btn" href="' + esc(x.url) + '">До товару</a></div></article>';
+    }).join('');
+    [].forEach.call(rev.querySelectorAll('.avh-card'), function (c) {
+      var v = c.querySelector('video');
+      c.querySelector('.avh-play').addEventListener('click', function () {
+        [].forEach.call(rev.querySelectorAll('video'), function (o) { if (o !== v) o.pause(); });
+        c.classList.add('is-playing'); v.controls = true; v.play();
+      });
+    });
+    rev.style.display = '';
+  })['catch'](function () {});
+
+  /* 3. як ми працюємо */
+  var steps = mk('<section class="avh avh-sec"><div class="avh-wrap"><h2 class="avh-h">Як ми працюємо</h2><p class="avh-sub">Просто, швидко і з гарантією.</p><div class="avh-steps">' +
+    STEPS.map(function (s, i) { return '<div class="avh-step"><i>' + (i + 1) + '</i><b>' + s.t + '</b><p>' + s.s + '</p></div>'; }).join('') + '</div></div></section>');
+  after(steps, cats || rev);
+
+  /* 4. про Георгія */
+  var about = mk('<section class="avh avh-sec" style="padding-top:0"><div class="avh-wrap"><div class="avh-about"><div class="avh-about-t">' +
+    '<h2 class="avh-h">Хто такий Георгій</h2>' +
+    '<p>Георгій — герой вітчизняної торгівлі і обличчя нашого магазину. Він сам тестує техніку, знімає огляди й чесно каже, що в моделі добре, а що — ні.</p>' +
+    '<p>Ми не продаємо «кота в мішку»: на кожен товар даємо 12 місяців гарантії, відправляємо в день замовлення і завжди на зв’язку в месенджерах.</p>' +
+    '<div class="avh-soc">' + SOCIALS.map(function (s, i) { return '<a class="avh-btn ' + (i ? 'avh-btn--dark' : '') + '" href="' + s.u + '" target="_blank" rel="noopener">' + s.n + '</a>'; }).join('') + '</div>' +
+    '</div><div class="avh-about-img" style="background-image:url(' + GEORGIY_IMG + ')" role="img" aria-label="Георгій — герой вітчизняної торгівлі"></div></div></div></section>');
+  after(about, steps);
+
+  /* 5. FAQ + розмітка для Google */
+  var faq = mk('<section class="avh avh-sec" style="padding-top:0"><div class="avh-wrap"><h2 class="avh-h">Часті питання</h2><p class="avh-sub">Не знайшли відповідь? Напишіть нам — відповімо швидко.</p><div class="avh-faq">' +
+    FAQ.map(function (q, i) { return '<details' + (i ? '' : ' open') + '><summary>' + q[0] + '</summary><p>' + q[1] + '</p></details>'; }).join('') + '</div></div></section>');
+  if (info) info.parentNode.insertBefore(faq, info); else after(faq, about);
+
+  var ld = document.createElement('script');
+  ld.type = 'application/ld+json';
+  ld.textContent = JSON.stringify([
+    { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: FAQ.map(function (q) { return { '@type': 'Question', name: q[0], acceptedAnswer: { '@type': 'Answer', text: q[1] } }; }) },
+    { '@context': 'https://schema.org', '@type': 'Organization', name: 'У Георгія', url: location.origin + '/', logo: location.origin + GEORGIY_IMG,
+      sameAs: SOCIALS.map(function (s) { return s.u; }),
+      contactPoint: { '@type': 'ContactPoint', telephone: '+380738264566', contactType: 'customer service', areaServed: 'UA', availableLanguage: ['uk'] } }
+  ]);
+  document.head.appendChild(ld);
+})();
+</script>
