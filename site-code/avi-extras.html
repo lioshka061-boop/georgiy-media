@@ -34,32 +34,29 @@
     '#cookies-panel .text p strong{display:none}' +
     '#cookies-panel .btn{flex:none;margin:0 !important;height:38px !important;padding:0 22px !important;border-radius:2px !important}' +
     /* компактний банер cookie: мобільна версія (модалка → смужка внизу) */
-    '#cookies-modal{background:transparent !important;pointer-events:none !important;align-items:flex-end !important;justify-content:stretch !important;height:auto !important;top:auto !important;bottom:0 !important}' +
-    '#cookies-modal::before,#cookies-modal::after{display:none !important}' +
-    '#cookies-modal .modal__box{pointer-events:auto;width:100% !important;max-width:none !important;margin:0 !important;border-radius:0 !important;padding:10px 16px calc(10px + env(safe-area-inset-bottom)) !important;display:flex;align-items:center;gap:12px;box-shadow:0 -6px 20px rgba(0,0,0,.12) !important}' +
-    '#cookies-modal .modal__body,#cookies-modal .modal__content{padding:0 !important;margin:0 !important;flex:1}' +
-    '#cookies-modal .text{font-size:11px !important;line-height:1.35 !important;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}' +
-    '#cookies-modal .text p{margin:0 !important}' +
-    '#cookies-modal .text p:first-child{display:none}' +
-    '#cookies-modal .modal__close-button{flex:none;margin:0 !important;padding:0 !important;position:static !important}' +
-    '#cookies-modal .modal__close-button .btn{height:40px !important;padding:0 16px !important;border-radius:2px !important;font-size:13px !important;white-space:nowrap}' +
-    'html.modal-opened,body.modal-opened,html.is-modal-open,body.is-modal-open{overflow:auto !important}';
+    'html.avx-ck .backdrop{opacity:0 !important;pointer-events:none !important}' +
+    'html.avx-ck #cookies-modal{position:fixed !important;inset:auto 0 0 0 !important;height:auto !important;background:transparent !important;display:block !important}' +
+    'html.avx-ck #cookies-modal .modal__box{position:relative !important;inset:auto !important;transform:none !important;width:100% !important;max-width:none !important;margin:0 !important;border-radius:0 !important;padding:10px 16px calc(10px + env(safe-area-inset-bottom)) !important;display:flex !important;align-items:center;gap:12px;background:#fff !important;box-shadow:0 -6px 20px rgba(0,0,0,.12) !important}' +
+    'html.avx-ck #cookies-modal .modal__body,html.avx-ck #cookies-modal .modal__content{padding:0 !important;margin:0 !important;flex:1;min-width:0}' +
+    'html.avx-ck #cookies-modal .text{font-size:11px !important;line-height:1.35 !important;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}' +
+    'html.avx-ck #cookies-modal .text p{margin:0 !important}' +
+    'html.avx-ck #cookies-modal .text p:first-child{display:none}' +
+    'html.avx-ck #cookies-modal .modal__close-button{flex:none;margin:0 !important;padding:0 !important;position:static !important}' +
+    'html.avx-ck #cookies-modal .modal__close-button .btn{height:40px !important;padding:0 16px !important;border-radius:2px !important;font-size:13px !important;white-space:nowrap}' +
+    'html.avx-ck,html.avx-ck body{overflow:auto !important;position:static !important}';
   var st = document.createElement('style');
   st.textContent = css;
   document.head.appendChild(st);
 
-  /* модалка cookie на мобільному блокує прокрутку сторінки — повертаємо, поки вона показана як смужка */
+  /* мобільна модалка cookie: показуємо смужкою внизу, без затемнення і блокування прокрутки */
   var ckm = document.getElementById('cookies-modal');
   if (ckm) {
-    var unlock = function () {
-      if (!document.getElementById('cookies-modal')) return;
-      document.documentElement.style.overflow = '';
-      document.body.style.overflow = '';
-      document.body.style.position = '';
+    var sync = function () {
+      var on = ckm.classList.contains('is-visible') || ckm.classList.contains('is-active');
+      document.documentElement.classList.toggle('avx-ck', on);
     };
-    unlock();
-    setTimeout(unlock, 300);
-    setTimeout(unlock, 1500);
+    sync();
+    new MutationObserver(sync).observe(ckm, { attributes: true, attributeFilter: ['class'] });
   }
 
   var skuMeta = document.querySelector('meta[itemprop="sku"]');
