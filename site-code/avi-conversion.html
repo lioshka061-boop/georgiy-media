@@ -102,7 +102,7 @@
           return b.offsetParent !== null && !b.classList.contains('j-submit');
         })[0];
       };
-      var newP = card.querySelector('.product-card__price--new');
+      var newP = card.querySelector('.product-card__price--new') || card.querySelector('.product-card__price');
       var oldP = card.querySelector('.product-card__old-price');
       if (primary() && newP) {
         var bar = mk('<div id="avs-bar" role="region" aria-label="Купити"><div class="avs-p"><span class="avs-new"></span>' +
