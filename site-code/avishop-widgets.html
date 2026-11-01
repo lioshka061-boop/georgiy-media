@@ -831,7 +831,7 @@
     '.avp-sum small{display:block;color:#6b6b6b;font-size:11px;margin-top:2px}' +
     '.avp-hint{box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px;padding:10px 12px;border-radius:2px;background:#fff8dc;border:1px solid #F1C944;font:400 12px/1.4 Unbounded,Arial,sans-serif;color:#1a1a1a}' +
     '.avp-hint button{flex:none;border:0;border-radius:2px;background:#1a1a1a;color:#fff;font:700 12px Unbounded,Arial,sans-serif;padding:9px 12px;cursor:pointer}' +
-    '.avp-done{box-sizing:border-box;margin:16px 0;padding:14px 16px;border-radius:12px;background:#e8f5ec;font:400 13px/1.5 Unbounded,Arial,sans-serif;color:#1a1a1a}' +
+    '.avp-done{box-sizing:border-box;display:block;width:100%;position:static;clear:both;margin:0 0 16px;padding:14px 16px;border-radius:12px;background:#e8f5ec;font:400 13px/1.5 Unbounded,Arial,sans-serif;color:#1a1a1a}' +
     '.avp-done b{color:#1f8f4e}' +
     /* мобільна тема: однакові гострі кути кнопок на сторінці товару */
     '.product-card__order-box .btn,.product-card__order-box .counter,.product-card__order-box .counter__btn,.product-card__order-box .counter__input{border-radius:2px !important}';
@@ -912,7 +912,13 @@
   var showDone = function () {
     var raw = null; try { raw = sessionStorage.getItem(LAST); } catch (e) {}
     if (!raw) return;
-    var back = [].filter.call(document.querySelectorAll('a,button'), function (x) { return /Повернутись до покупок/.test(x.textContent); })[0];
+    /* видима кнопка «Повернутись до покупок» внизу (на сторінці є ще одна, прихована/абсолютна) */
+    var backs = [].filter.call(document.querySelectorAll('a,button'), function (x) {
+      if (!/Повернутись до покупок/.test(x.textContent) || x.offsetParent === null) return false;
+      var p = getComputedStyle(x).position;
+      return p !== 'absolute' && p !== 'fixed' && x.getBoundingClientRect().width > 200;
+    });
+    var back = backs[backs.length - 1];
     if (!back || document.querySelector('.avp-done')) return;
     var d = JSON.parse(raw);
     if (Date.now() - d.ts > 3600000) { try { sessionStorage.removeItem(LAST); } catch (e) {} return; }
