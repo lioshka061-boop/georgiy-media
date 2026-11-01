@@ -15,6 +15,7 @@
   /* ======================== */
 
   var NS = Object.keys(FEE).map(Number).sort(function (a, b) { return a - b; });
+  var NS_SHORT = [4, 6, 10, 12, 18, 24];  // на сторінці товару — лише популярні, щоб не перевантажувати
   /* сума для покупця: ми отримуємо стільки ж, скільки отримали б за 4 платежі */
   var total = function (price, n) {
     if (n <= FREE) return Math.ceil(price);
@@ -28,31 +29,36 @@
   var after = function (el, ref) { ref.parentNode.insertBefore(el, ref.nextSibling); return el; };
 
   var css = '' +
-    '.avp{font-family:Unbounded,Arial,Helvetica,sans-serif;color:#1a1a1a;box-sizing:border-box;margin:12px 0 0;border:1.5px solid #1a1a1a;border-radius:12px;background:#fff;overflow:hidden}' +
+    '.avp{font-family:Unbounded,Arial,Helvetica,sans-serif;color:#1a1a1a;box-sizing:border-box;margin:12px 0 0;border:1px solid #e2e2e2;border-radius:2px;background:#fff;overflow:hidden}' +
     '.avp *{box-sizing:border-box}' +
-    '.avp-head{display:flex;align-items:center;gap:10px;width:100%;padding:12px 14px;border:0;background:#fff;font:inherit;text-align:left;cursor:pointer}' +
-    '.avp-ico{flex:none;width:34px;height:34px;border-radius:2px;background:#F1C944;display:flex;align-items:center;justify-content:center}' +
-    '.avp-ico svg{width:20px;height:20px}' +
-    '.avp-head-t{flex:1;min-width:0;font-size:13px;line-height:1.35}' +
-    '.avp-head-t b{font-weight:800}' +
-    '.avp-head-t small{display:block;font-size:11px;opacity:.65}' +
-    '.avp-arr{flex:none;font-size:18px;transition:transform .15s}' +
+    '.avp button{-webkit-appearance:none;appearance:none;color:#1a1a1a;-webkit-tap-highlight-color:transparent}' +
+    '.avp-head{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border:0;border-radius:0;background:#fff;font:inherit;text-align:left;cursor:pointer}' +
+    '.avp-ico{flex:none;width:32px;height:32px;border-radius:2px;background:#F1C944;color:#1a1a1a;display:flex;align-items:center;justify-content:center}' +
+    '.avp-ico svg{width:18px;height:18px;stroke:#1a1a1a}' +
+    '.avp-head-t{flex:1;min-width:0;font-size:13px;line-height:1.35;color:#1a1a1a}' +
+    '.avp-head-t b{font-weight:700}' +
+    '.avp-head-t small{display:block;font-size:11px;color:#6b6b6b}' +
+    '.avp-arr{flex:none;width:18px;height:18px;color:#1a1a1a;transition:transform .15s}' +
     '.avp.is-open .avp-arr{transform:rotate(180deg)}' +
-    '.avp-body{display:none;padding:0 14px 14px}' +
+    '.avp-body{display:none;padding:2px 12px 12px;border-top:1px solid #f0f0f0}' +
     '.avp.is-open .avp-body,.avp--co .avp-body{display:block}' +
-    '.avp-lbl{font-size:12px;font-weight:600;margin:2px 0 8px;opacity:.75}' +
+    '.avp--co .avp-body{border-top:0;padding:12px}' +
+    '.avp-lbl{font-size:12px;font-weight:600;margin:10px 0 8px;color:#6b6b6b}' +
+    '.avp--co .avp-lbl{margin-top:0}' +
     '.avp-chips{display:flex;flex-wrap:wrap;gap:6px}' +
-    '.avp-chip{min-width:44px;height:38px;padding:0 10px;border:1.5px solid #d6d6d6;border-radius:2px;background:#fff;font:700 13px Unbounded,Arial,sans-serif;color:#1a1a1a;cursor:pointer}' +
-    '.avp-chip.is-free{border-color:#1a1a1a}' +
-    '.avp-chip[aria-pressed="true"]{background:#1a1a1a;border-color:#1a1a1a;color:#F1C944}' +
-    '.avp-res{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 12px;margin:12px 0 0;padding:12px;border-radius:2px;background:#f7f7f5}' +
-    '.avp-per{font-size:20px;font-weight:800}' +
-    '.avp-per small{font-size:12px;font-weight:600;opacity:.7}' +
-    '.avp-note{font-size:12px;line-height:1.4}' +
+    '.avp-chip{flex:1 0 40px;max-width:56px;height:36px;padding:0 6px;border:1px solid #dcdcdc;border-radius:2px;background:#fff;font:600 13px Unbounded,Arial,sans-serif;cursor:pointer}' +
+    '.avp-chip[aria-pressed="true"]{background:#1a1a1a;border-color:#1a1a1a;color:#fff}' +
+    '.avp-res{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 12px;margin:10px 0 0;padding:10px 12px;border-radius:2px;background:#f7f7f5}' +
+    '.avp-per{font-size:18px;font-weight:700}' +
+    '.avp-per small{font-size:12px;font-weight:500;color:#6b6b6b}' +
+    '.avp-note{font-size:12px;line-height:1.4;color:#444}' +
     '.avp-note .is-free{color:#1f8f4e;font-weight:700}' +
-    '.avp-foot{margin:10px 0 0;font-size:11px;line-height:1.45;opacity:.65}' +
-    '.avp-buy{display:flex;align-items:center;justify-content:center;width:100%;height:46px;margin:12px 0 0;border:0;border-radius:2px;background:#1a1a1a;color:#fff;font:700 14px Unbounded,Arial,sans-serif;cursor:pointer}' +
-    '.avp--co{margin:14px 0 4px}';
+    '.avp-foot{margin:8px 0 0;font-size:11px;line-height:1.45;color:#7a7a7a}' +
+    '.avp .avp-buy{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:48px;margin:10px 0 0;border:0;border-radius:2px;background:#F1C944;color:#1a1a1a;font:700 15px Unbounded,Arial,sans-serif;cursor:pointer}' +
+    '.avp .avp-buy:active{background:#e6bb2f}' +
+    '.avp--co{margin:12px 0 4px}' +
+    /* мобільна тема: однакові гострі кути кнопок на сторінці товару */
+    '.product-card__order-box .btn,.product-card__order-box .counter,.product-card__order-box .counter__btn,.product-card__order-box .counter__input{border-radius:2px !important}';
   var st = document.createElement('style');
   st.textContent = css;
   document.head.appendChild(st);
@@ -63,14 +69,15 @@
   var build = function (opts) {
     var el = mk('<div class="avp' + (opts.checkout ? ' avp--co' : '') + '">' +
       (opts.checkout ? '' : '<button type="button" class="avp-head" aria-expanded="false"><span class="avp-ico">' + icon + '</span>' +
-        '<span class="avp-head-t"></span><span class="avp-arr">▾</span></button>') +
+        '<span class="avp-head-t"></span><svg class="avp-arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>') +
       '<div class="avp-body"><div class="avp-lbl">' + (opts.checkout ? 'Оберіть кількість платежів' : 'Кількість платежів') + '</div>' +
-      '<div class="avp-chips">' + NS.map(function (n) { return '<button type="button" class="avp-chip' + (n <= FREE ? ' is-free' : '') + '" data-n="' + n + '" aria-pressed="false">' + n + '</button>'; }).join('') + '</div>' +
+      '<div class="avp-chips">' + (opts.checkout ? NS : NS_SHORT).map(function (n) { return '<button type="button" class="avp-chip" data-n="' + n + '" aria-pressed="false">' + n + '</button>'; }).join('') + '</div>' +
       '<div class="avp-res"><div class="avp-per"></div><div class="avp-note"></div></div>' +
-      '<div class="avp-foot">До ' + FREE + ' платежів — без переплати, комісію банку платимо ми. Якщо обираєте більше — доплачуєте лише різницю в комісії. Оформлення — менеджер зв’яжеться після замовлення.</div>' +
+      '<div class="avp-foot">До ' + FREE + ' платежів комісію банку платимо ми. Більше платежів — доплачуєте лише різницю. Менеджер зв’яжеться для оформлення.</div>' +
       (opts.checkout ? '' : '<button type="button" class="avp-buy">Купити частинами</button>') +
       '</div></div>');
     var n = getN();
+    if (!opts.checkout && NS_SHORT.indexOf(n) < 0) n = DEF;
     var render = function () {
       var p = opts.price();
       if (!(p > 0)) return;
