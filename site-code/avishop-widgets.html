@@ -1,0 +1,456 @@
+<!-- AVI SHOP: таймер знижки + блок соцмереж / огляд Георгія. -->
+<script>
+(function () {
+  'use strict';
+
+  /* ===== НАЛАШТУВАННЯ ===== */
+  var SOCIALS = [
+    { name: 'TikTok',    url: 'https://www.tiktok.com/@avishop.com.ua',    icon: 'play' },
+    { name: 'Instagram', url: 'https://www.instagram.com/avishop.com.ua/', icon: 'cam'  },
+    { name: 'Threads',   url: 'https://www.threads.com/@avishop.com.ua',   icon: 'at'   }
+  ];
+
+  /* Список оглядів підтягується автоматично з репозиторію georgiy-media (reviews.json).
+     Формат: { "артикул": { "tiktok": "...", "instagram": "...", "video": "посилання на mp4" } }
+     REVIEWS нижче — запасний ручний список, якщо файл недоступний. */
+  var REVIEWS_URL = 'https://raw.githubusercontent.com/lioshka061-boop/georgiy-media/main/reviews.json';
+  var REVIEWS = {
+    'HHR25A': { tiktok: 'https://www.tiktok.com/@avishop.com.ua/video/7702880277072186632' }, // Dreame H12 Pro
+    '61671':  { tiktok: 'https://www.tiktok.com/@avishop.com.ua/video/7702537309220064520' }, // SteelSeries Arctis Nova 5 White
+  };
+
+  var TIMER_TZ = 'Europe/Kyiv';
+  /* ======================== */
+
+  var skuMeta = document.querySelector('meta[itemprop="sku"]');
+  if (!skuMeta || document.getElementById('avw-root')) return;
+  var sku = (skuMeta.getAttribute('content') || '').trim();
+
+  /* Дві версії сайту Хорошопа: десктоп і окрема мобільна */
+  var isMobile = !!document.querySelector('.product-card--main');
+  var P;
+  if (isMobile) {
+    var card = document.querySelector('.product-card--main');
+    var fav = document.querySelector('.product__block--orderBox .j-widget-favorites-add');
+    P = {
+      oldPrice:    card.querySelector('.product-card__old-price'),
+      timerAfter:  card.querySelector('.product-card__price-box'),
+      widgetAfter: (fav && fav.closest('.btn-toolbar')) || card
+    };
+  } else {
+    var priceSection = document.querySelector('.product__section--price');
+    if (!priceSection) return;
+    P = {
+      priceSection: priceSection,
+      oldPrice:     priceSection.querySelector('.product-price__old-price'),
+      timerAfter:   priceSection.querySelector('.product-price'),
+      widgetAfter:  document.querySelector('.product__section--order') || priceSection
+    };
+  }
+  if (!P.timerAfter || !P.widgetAfter) return;
+
+  var css = '' +
+    '#avw-root,.avw-timer{font-family:Unbounded,Arial,Helvetica,sans-serif;box-sizing:border-box}' +
+    '#avw-root *,.avw-timer *{box-sizing:border-box}' +
+    /* десктоп: «Порівняти / В бажання» переносимо під таймер */
+    '.avw-stack>.product__row:first-child{flex-wrap:wrap}' +
+    '.avw-stack>.product__row:first-child>.product__block--wide{flex:1 1 100%;max-width:100%}' +
+    '.avw-stack>.product__row:first-child>.product__block:not(.product__block--wide){margin-top:4px}' +
+    '.avw-timer{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:12px 0;padding:10px 14px;border-radius:2px;background:#fff1f1;border:1px solid #ffd0d0;color:#1a1a1a;font-size:13px}' +
+    '.avw-timer__label{font-weight:600}' +
+    '.avw-timer__clock{display:flex;gap:4px;font-variant-numeric:tabular-nums}' +
+    '.avw-timer__clock span{min-width:38px;padding:6px 6px;border-radius:2px;background:#e60000;color:#fff;font-weight:700;font-size:16px;text-align:center}' +
+    '.avw-timer__clock i{font-style:normal;font-weight:700;color:#e60000;align-self:center}' +
+    '#avw-root{margin:20px 0 4px;padding:14px 16px;border-radius:12px;background:#FBEFC4;border:1px solid #F1C944;color:#1a1a1a}' +
+    '.avw-title{margin:0 0 4px;font-size:14px;font-weight:700;line-height:1.3}' +
+    '.avw-sub{margin:0 0 12px;font-size:12px;opacity:.75;line-height:1.4}' +
+    '.avw-tabs{display:flex;gap:6px;margin-bottom:10px}' +
+    '.avw-tab{flex:1;padding:8px 10px;border:2px solid #1a1a1a;border-radius:2px;background:transparent;color:#1a1a1a;font:inherit;font-size:12px;font-weight:600;cursor:pointer}' +
+    '.avw-tab[aria-selected="true"]{background:#1a1a1a;color:#F1C944}' +
+    '.avw-player{position:relative;width:100%;max-width:340px;margin:0 auto 14px;border-radius:2px;overflow:hidden;background:#000}' +
+    '.avw-player--tiktok{aspect-ratio:9/16}' +
+    '.avw-player--instagram{height:620px;background:#fff}' +
+    '.avw-player--video{aspect-ratio:9/16}' +
+    '.avw-player video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000}' +
+    '.avw-player iframe{position:absolute;inset:0;width:100%;height:100%;border:0}' +
+    '.avw-socials{display:flex;flex-wrap:wrap;gap:8px}' +
+    /* кнопки соцмереж контурні, щоб не сперечалися з «Купити» */
+    '.avw-btn{flex:1 1 90px;display:flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:8px 12px;border:1.5px solid #1a1a1a;border-radius:2px;background:transparent;color:#1a1a1a !important;text-decoration:none !important;font-size:12px;font-weight:600;transition:background .15s,color .15s}' +
+    '.avw-btn:hover{background:#1a1a1a;color:#fff !important}' +
+    '.avw-btn svg{width:15px;height:15px;flex:none}' +
+    '@media (prefers-reduced-motion:reduce){.avw-btn{transition:none}}';
+  var style = document.createElement('style');
+  style.textContent = css;
+  document.head.appendChild(style);
+
+  var insertAfter = function (el, ref) { ref.parentNode.insertBefore(el, ref.nextSibling); };
+
+  /* ---------- Таймер (лише якщо є стара ціна) ---------- */
+  if (P.oldPrice && P.oldPrice.textContent.trim()) {
+    var timer = document.createElement('div');
+    timer.className = 'avw-timer';
+    timer.innerHTML = '<span class="avw-timer__label">⏰ Знижка діє ще</span>' +
+      '<span class="avw-timer__clock"><span data-h>00</span><i>:</i><span data-m>00</span><i>:</i><span data-s>00</span></span>';
+    insertAfter(timer, P.timerAfter);
+    if (P.priceSection) P.priceSection.classList.add('avw-stack');
+
+    var secondsToMidnight = function () {
+      var p = {};
+      new Intl.DateTimeFormat('en-GB', { timeZone: TIMER_TZ, hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })
+        .formatToParts(new Date()).forEach(function (x) { p[x.type] = +x.value; });
+      return 86400 - ((p.hour % 24) * 3600 + p.minute * 60 + p.second);
+    };
+    var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+    var h = timer.querySelector('[data-h]'), m = timer.querySelector('[data-m]'), s = timer.querySelector('[data-s]');
+    var tick = function () {
+      var t = secondsToMidnight();
+      h.textContent = pad(Math.floor(t / 3600));
+      m.textContent = pad(Math.floor(t % 3600 / 60));
+      s.textContent = pad(t % 60);
+    };
+    tick();
+    setInterval(tick, 1000);
+  }
+
+  /* ---------- Блок соцмереж / огляд ---------- */
+  var ICONS = {
+    play: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>',
+    cam:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/></svg>',
+    at:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/></svg>'
+  };
+
+  var embedUrl = {
+    tiktok: function (u) {
+      var id = (u.match(/video\/(\d+)/) || [])[1];
+      return id ? 'https://www.tiktok.com/player/v1/' + id + '?description=1&music_info=0&rel=0' : null;
+    },
+    instagram: function (u) {
+      var mm = u.match(/instagram\.com\/(reel|p|tv)\/([A-Za-z0-9_-]+)/);
+      return mm ? 'https://www.instagram.com/' + mm[1] + '/' + mm[2] + '/embed' : null;
+    }
+  };
+
+  var LABELS = { tiktok: 'TikTok', instagram: 'Instagram', video: 'Відео' };
+  var playable = function (r, k) {
+    if (!r || !r[k]) return false;
+    return k === 'video' ? /^https:\/\/.+\.mp4(\?.*)?$/.test(r[k]) : !!embedUrl[k](r[k]);
+  };
+
+  var root = document.createElement('div');
+  root.id = 'avw-root';
+  insertAfter(root, P.widgetAfter);
+
+  var render = function (review) {
+    var sources = ['tiktok', 'instagram', 'video'].filter(function (k) { return playable(review, k); });
+    /* власне відео потрібне лише коли нема посту в соцмережі */
+    if (sources.length > 1 && sources.indexOf('video') > -1) sources.splice(sources.indexOf('video'), 1);
+
+    var html = '';
+    if (sources.length) {
+      html += '<p class="avw-title">🎬 Георгій вже оглянув цей товар</p>' +
+              '<p class="avw-sub">Подивись огляд перед покупкою, а більше оглядів у наших соцмережах.</p>';
+      if (sources.length > 1) {
+        html += '<div class="avw-tabs" role="tablist">' + sources.map(function (k, i) {
+          return '<button type="button" class="avw-tab" role="tab" data-src="' + k + '" aria-selected="' + (i === 0) + '">' + LABELS[k] + '</button>';
+        }).join('') + '</div>';
+      }
+      html += '<div class="avw-player"></div>';
+    } else {
+      html += '<p class="avw-title">Георгій оглядає техніку щодня</p>' +
+              '<p class="avw-sub">Огляди, розпаковки та знижки в наших соцмережах.</p>';
+    }
+    html += '<div class="avw-socials">' + SOCIALS.map(function (x) {
+      return '<a class="avw-btn" href="' + x.url + '" target="_blank" rel="noopener">' + (ICONS[x.icon] || '') + x.name + '</a>';
+    }).join('') + '</div>';
+    root.innerHTML = html;
+    if (!sources.length) return;
+
+    var player = root.querySelector('.avw-player');
+    var show = function (k) {
+      player.className = 'avw-player avw-player--' + k;
+      if (k === 'video') {
+        player.innerHTML = '<video src="' + review.video + '" controls playsinline preload="metadata" title="Відеоогляд"></video>';
+      } else {
+        player.innerHTML = '<iframe src="' + embedUrl[k](review[k]) + '" loading="lazy" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen title="Відеоогляд"></iframe>';
+      }
+      [].forEach.call(root.querySelectorAll('.avw-tab'), function (b) {
+        b.setAttribute('aria-selected', b.getAttribute('data-src') === k);
+      });
+    };
+    [].forEach.call(root.querySelectorAll('.avw-tab'), function (b) {
+      b.addEventListener('click', function () { show(b.getAttribute('data-src')); });
+    });
+    var start = function () { show(sources[0]); };
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (e) {
+        if (e[0].isIntersecting) { io.disconnect(); start(); }
+      }, { rootMargin: '300px' });
+      io.observe(player);
+    } else { start(); }
+  };
+
+  var pick = function (list) { return (list && (list[sku] || list[sku.toLowerCase()])) || null; };
+  var local = pick(REVIEWS);
+  render(local);
+
+  /* оновлення раз на годину (кеш браузера), щоб не смикати GitHub на кожен перегляд */
+  if (window.fetch) {
+    var bust = Math.floor(Date.now() / 3600000);
+    fetch(REVIEWS_URL + '?h=' + bust).then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (list) {
+        var remote = pick(list);
+        if (!remote) return;
+        var merged = {};
+        [local || {}, remote].forEach(function (o) { for (var k in o) if (o[k]) merged[k] = o[k]; });
+        if (JSON.stringify(merged) !== JSON.stringify(local)) render(merged);
+      })['catch'](function () {});
+  }
+})();
+</script>
+<!-- AVI SHOP: одна кнопка «Зв'язатися» замість трьох плаваючих віджетів -->
+<script>
+(function () {
+  'use strict';
+  if (document.getElementById('avc-root')) return;
+
+  var CONTACTS = [
+    { id: 'tg', label: 'Telegram', href: 'https://t.me/Constantine180', bg: '#229ED9',
+      icon: '<path d="M21.5 4.5 2.9 11.7c-1 .4-1 1.5-.1 1.8l4.7 1.5 1.8 5.5c.3.8 1.3 1 1.9.4l2.6-2.5 4.9 3.6c.7.5 1.7.1 1.9-.8l3.1-14.9c.2-1-.8-1.8-1.9-1.4Zm-3.6 4.1-7.9 7.2-.3 3.2-1.4-4.6 9.3-6.1c.4-.3.7.1.3.3Z" fill="currentColor"/>' },
+    { id: 'vb', label: 'Viber', href: 'viber://chat?number=%2B380991640465', bg: '#7360F2',
+      icon: '<path d="M12 2.5c-5 0-8.5 2.3-8.5 7.6 0 2.8.9 4.6 2.5 5.8V20l3-2.1c1 .2 2 .3 3 .3 5 0 8.5-2.3 8.5-8.1S17 2.5 12 2.5Zm3.9 11.2c-.3.7-1.3 1.2-2 1-2.6-.6-5.4-3.2-6-5.9-.2-.7.3-1.7 1-2 .4-.2.8 0 1 .3l.8 1.3c.2.4.1.8-.2 1l-.4.4c.4 1.2 1.6 2.4 2.8 2.8l.4-.4c.3-.3.7-.4 1-.2l1.3.8c.4.2.5.6.3.9Z" fill="currentColor"/>' },
+    { id: 'wa', label: 'WhatsApp', href: 'https://wa.me/380991640465', bg: '#25D366',
+      icon: '<path d="M12 2.5a9.5 9.5 0 0 0-8.2 14.3L2.5 21.5l4.8-1.3A9.5 9.5 0 1 0 12 2.5Zm4.6 12.9c-.2.6-1.2 1.1-1.7 1.1-.4.1-1 .1-1.6-.1-3-1-5-3.9-5.2-4.1-.1-.2-1.2-1.6-1.2-3s.8-2.2 1-2.5c.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .6l-.4.6c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2 1.1 1 2 1.3 2.3 1.4.3.1.5.1.6-.1l.8-1c.2-.3.4-.2.7-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.2Z" fill="currentColor"/>' },
+    { id: 'call', label: 'Зателефонувати', href: 'tel:+380991640465', bg: '#1a1a1a',
+      icon: '<path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2Z" fill="currentColor"/>' }
+  ];
+  /* Чат KeyCRM і кнопку Unitalk повністю ховаємо — зв'язок лише через це меню */
+  var EXTRA = [];
+
+  var css = '' +
+    /* ховаємо рідні кнопки KeyCRM і Unitalk та автопривітання чату */
+    '.KeyCRM-toggleButtonContainer,[class*="ButtonContainer(list)"]{opacity:0 !important;pointer-events:none !important;width:1px !important;height:1px !important;overflow:hidden !important}' +
+    '.KeyCRM-chatWindowContainer,.KeyCRM-toggleButtonContainer{display:none !important}' +
+    '#avc-root{position:fixed;right:16px;bottom:88px;z-index:2147483600;font-family:Unbounded,Arial,Helvetica,sans-serif}' +
+    '#avc-fab{width:56px;height:56px;border:0;border-radius:2px;background:#1a1a1a;color:#F1C944;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.25);}' +
+    '#avc-fab svg{width:26px;height:26px}' +
+    '#avc-fab .avc-x,#avc-root.is-open #avc-fab .avc-chat{display:none}' +
+    '#avc-root.is-open #avc-fab .avc-x{display:block}' +
+    '#avc-menu{position:absolute;right:0;bottom:66px;display:flex;flex-direction:column;align-items:flex-end;gap:8px;opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .18s,transform .18s}' +
+    '#avc-root.is-open #avc-menu{opacity:1;transform:none;pointer-events:auto}' +
+    '.avc-item{display:flex;align-items:center;gap:10px;padding:6px 6px 6px 14px;border:0;border-radius:2px;background:#fff;color:#1a1a1a !important;text-decoration:none !important;font:600 13px Unbounded,Arial,sans-serif;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.18);cursor:pointer}' +
+    '.avc-ico{width:36px;height:36px;border-radius:2px;display:flex;align-items:center;justify-content:center;color:#fff}' +
+    '.avc-ico svg{width:20px;height:20px}' +
+    '@media (prefers-reduced-motion:reduce){#avc-menu{transition:none}}';
+  var st = document.createElement('style');
+  st.textContent = css;
+  document.head.appendChild(st);
+
+  var svg = function (p) { return '<svg viewBox="0 0 24 24" aria-hidden="true">' + p + '</svg>'; };
+  var item = function (c, tag) {
+    var ico = '<span class="avc-ico" style="background:' + c.bg + (c.fg ? ';color:' + c.fg : '') + '">' + svg(c.icon) + '</span>';
+    return tag === 'a'
+      ? '<a class="avc-item" data-id="' + c.id + '" href="' + c.href + '" target="_blank" rel="noopener">' + c.label + ico + '</a>'
+      : '<button type="button" class="avc-item" data-id="' + c.id + '">' + c.label + ico + '</button>';
+  };
+
+  var root = document.createElement('div');
+  root.id = 'avc-root';
+  root.innerHTML = '<div id="avc-menu" role="menu"></div>' +
+    '<button type="button" id="avc-fab" aria-expanded="false" aria-label="Зв\'язатися з нами">' +
+    '<svg class="avc-chat" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3C6.5 3 2 6.6 2 11c0 2.4 1.3 4.6 3.4 6L4.5 21l4.3-2.3c1 .2 2.1.3 3.2.3 5.5 0 10-3.6 10-8s-4.5-8-10-8Z" fill="currentColor"/></svg>' +
+    '<svg class="avc-x" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>' +
+    '</button>';
+  document.body.appendChild(root);
+
+  var menu = root.querySelector('#avc-menu');
+  var fab = root.querySelector('#avc-fab');
+
+  var render = function () {
+    var html = CONTACTS.map(function (c) { return item(c, 'a'); }).join('');
+    EXTRA.forEach(function (c) { if (document.querySelector(c.sel)) html = item(c, 'button') + html; });
+    menu.innerHTML = html;
+  };
+  var setOpen = function (v) {
+    root.classList.toggle('is-open', v);
+    fab.setAttribute('aria-expanded', v);
+    fab.setAttribute('aria-label', v ? 'Закрити' : 'Зв\'язатися з нами');
+  };
+  fab.addEventListener('click', function () { render(); setOpen(!root.classList.contains('is-open')); });
+  menu.addEventListener('click', function (e) {
+    var b = e.target.closest('button.avc-item');
+    setOpen(false);
+    if (!b) return;
+    var x = EXTRA.filter(function (c) { return c.id === b.getAttribute('data-id'); })[0];
+    var el = x && document.querySelector(x.sel);
+    if (!el) return;
+    document.body.classList.add('avc-chat-open');
+    (el.querySelector('button,[role=button],div') || el).click();
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
+  document.addEventListener('click', function (e) { if (!root.contains(e.target)) setOpen(false); });
+})();
+</script>
+<!-- AVI SHOP: блок довіри, липка кнопка «Купити» (мобільна), новий вигляд чекауту -->
+<script>
+(function () {
+  'use strict';
+  if (window.__aviConv) return;
+  window.__aviConv = true;
+
+  /* ===== НАЛАШТУВАННЯ ===== */
+  var TRUST = [
+    { ico: 'shield', t: 'Гарантія 12 місяців', s: 'особисто від Георгія' },
+    { ico: 'truck',  t: 'Доставка Новою Поштою', s: 'по всій Україні' },
+    { ico: 'box',    t: 'Оригінал з Європи', s: 'нова техніка, не сірий імпорт' },
+    { ico: 'back',   t: 'Обмін і повернення', s: '14 днів за законом' }
+  ];
+  /* ======================== */
+
+  var ICO = {
+    shield: '<path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3Zm-1.2 14.2-3.5-3.5 1.4-1.4 2.1 2.1 4.9-4.9 1.4 1.4-6.3 6.3Z" fill="currentColor"/>',
+    truck:  '<path d="M3 5h11v9H3V5Zm11 3h3.5L21 11.5V14h-7V8ZM6.5 18.5a1.8 1.8 0 1 0 0-3.6 1.8 1.8 0 0 0 0 3.6Zm11 0a1.8 1.8 0 1 0 0-3.6 1.8 1.8 0 0 0 0 3.6Z" fill="currentColor"/>',
+    box:    '<path d="M12 2 3 6.5v11L12 22l9-4.5v-11L12 2Zm0 2.2 6.5 3.3L12 10.8 5.5 7.5 12 4.2ZM5 9.1l6 3v7.4l-6-3V9.1Zm8 10.4v-7.4l6-3v7.4l-6 3Z" fill="currentColor"/>',
+    back:   '<path d="M12 4a8 8 0 1 1-7.4 5H2l3.5-4L9 9H6.7A6 6 0 1 0 12 6V4Z" fill="currentColor"/>'
+  };
+  var svg = function (p) { return '<svg viewBox="0 0 24 24" aria-hidden="true">' + p + '</svg>'; };
+  var trustHtml = function (cls) {
+    return '<div class="avt ' + (cls || '') + '">' + TRUST.map(function (x) {
+      return '<div class="avt-i"><span class="avt-ico">' + svg(ICO[x.ico]) + '</span><span><b>' + x.t + '</b><small>' + x.s + '</small></span></div>';
+    }).join('') + '</div>';
+  };
+
+  var css = '' +
+    /* ---- блок довіри ---- */
+    '.avt{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0 4px;font-family:Unbounded,Arial,Helvetica,sans-serif}' +
+    '.avt-i{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:2px;background:#f7f7f5;color:#1a1a1a}' +
+    '.avt-ico{flex:none;width:34px;height:34px;border-radius:2px;background:#F1C944;color:#1a1a1a;display:flex;align-items:center;justify-content:center}' +
+    '.avt-ico svg{width:18px;height:18px}' +
+    '.avt-i b{display:block;font-size:12px;font-weight:700;line-height:1.25}' +
+    '.avt-i small{display:block;font-size:11px;opacity:.65;line-height:1.3}' +
+    '.avt--aside{grid-template-columns:1fr;margin:14px 0 0;background:#fff;border-radius:12px;padding:8px 10px;gap:0;box-shadow:0 8px 30px rgba(0,0,0,.06)}' +
+    '.avt--aside .avt-i{background:transparent}' +
+    '.avt--aside .avt-i+.avt-i{border-top:1px solid #f0f0f0;border-radius:0}' +
+    '@media (max-width:420px){.avt{grid-template-columns:1fr}}' +
+
+    /* ---- липка кнопка «Купити» (мобільна) ---- */
+    '#avs-bar{position:fixed;left:0;right:0;bottom:0;z-index:2147483500;display:flex;align-items:center;gap:12px;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:#fff;box-shadow:0 -6px 20px rgba(0,0,0,.12);font-family:Unbounded,Arial,Helvetica,sans-serif;transform:translateY(110%);transition:transform .2s}' +
+    '#avs-bar.is-on{transform:none}' +
+    '#avs-bar .avs-p{flex:1;min-width:0;line-height:1.2}' +
+    '#avs-bar .avs-new{display:block;font-size:18px;font-weight:700;color:#e60000}' +
+    '#avs-bar .avs-old{font-size:12px;color:#888;text-decoration:line-through}' +
+    '#avs-bar .avs-btn{flex:none;height:48px;padding:0 26px;border:0;border-radius:2px;background:#1a1a1a;color:#fff;font:700 15px Unbounded,Arial,sans-serif;cursor:pointer}' +
+    'body.avs-has-bar #avc-root{bottom:96px}' +
+    '@media (prefers-reduced-motion:reduce){#avs-bar{transition:none}}' +
+
+    /* ---- чекаут ---- */
+    '.checkout{font-family:Unbounded,Arial,Helvetica,sans-serif}' +
+    '.checkout .main-h{font-size:32px;margin-bottom:20px}' +
+    '.checkout-header{margin-bottom:0 !important;border:0 !important;align-items:flex-end}' +
+    '.checkout-tabs{display:flex !important;align-items:stretch;gap:4px;padding:0;background:none}' +
+    '.checkout-tabs .checkout-tabs-i{display:flex !important;align-items:center;margin:0 !important;height:auto !important;border-radius:12px 12px 0 0 !important;padding:10px 16px !important;background:rgba(255,255,255,.45) !important;box-shadow:none !important;font-size:13px;line-height:1.2;color:#1a1a1a !important}' +
+    '.checkout-tabs .checkout-tabs-i.__active{background:#fff !important}' +
+    '.checkout-body{border-radius:0 12px 12px 12px !important;padding:8px 28px 28px !important}' +
+    '#checkout-container{counter-reset:avstep}' +
+    '#checkout-container > .checkout-step{position:relative;padding:22px 0 22px 48px !important;border-bottom:1px solid #eee}' +
+    '#checkout-container > .checkout-step::before{counter-increment:avstep;content:counter(avstep);position:absolute;left:0;top:20px;width:32px;height:32px;border-radius:2px;background:#F1C944;color:#1a1a1a;font-weight:700;font-size:15px;display:flex;align-items:center;justify-content:center}' +
+    '#checkout-container > .checkout-step.__disabled{opacity:.55}' +
+    '#checkout-container > .checkout-step.__disabled::before{background:#e8e8e8}' +
+    '.checkout .checkout-step-h{font-size:18px !important;font-weight:700 !important;color:#1a1a1a !important;margin:4px 0 14px}' +
+    '.checkout .form-head label{font-size:13px;font-weight:600;color:#555}' +
+    '.checkout .field,.checkout .selectboxit-btn{height:48px !important;border:1px solid #cfcfcf !important;border-radius:2px !important;font-size:15px !important;padding:0 14px !important;transition:border-color .15s,box-shadow .15s}' +
+    '.checkout .selectboxit-btn{display:flex !important;align-items:center}' +
+    '.checkout .field:focus,.checkout .selectboxit-btn:focus,.checkout .selectboxit-btn.selectboxit-focus{border-color:#1a1a1a !important;box-shadow:0 0 0 2px #F1C944 !important;outline:none}' +
+    '.checkout textarea.field{height:96px !important;padding:12px 14px !important}' +
+    '.checkout-footer{padding-top:22px !important}' +
+    '.checkout-footer .btn.j-submit{display:flex !important;align-items:center;justify-content:center;width:100%;max-width:420px;height:54px !important;border-radius:2px !important;background:#1a1a1a !important;color:#fff !important;font:700 17px Unbounded,Arial,sans-serif !important;border:0 !important;box-shadow:none}' +
+    '.checkout-footer .btn.j-submit:hover{background:#000 !important}' +
+    '.checkout-footer .btn.j-submit.__disabled{opacity:.7;box-shadow:none}' +
+    '.checkout-aside .order{border-radius:12px !important;padding:22px !important}' +
+    '.checkout-aside{position:sticky;top:20px;align-self:flex-start}' +
+    '.checkout-aside .order-header{font-size:18px;font-weight:700}' +
+    '.checkout-aside .order-summary{border-top:1px dashed #ddd;padding-top:14px;margin-top:10px}' +
+    '.checkout-aside .order-summary-b{font-size:24px !important;font-weight:800 !important}';
+  var st = document.createElement('style');
+  st.textContent = css;
+  document.head.appendChild(st);
+
+  var insertAfter = function (el, ref) { ref.parentNode.insertBefore(el, ref.nextSibling); };
+  var mk = function (html) { var d = document.createElement('div'); d.innerHTML = html; return d.firstChild; };
+
+  /* ---------- Сторінка товару ---------- */
+  var isMobile = !!document.querySelector('.product-card--main');
+  var hasProduct = !!document.querySelector('meta[itemprop="sku"]');
+  if (hasProduct) {
+    var anchor = isMobile
+      ? (function () { var f = document.querySelector('.product__block--orderBox .j-widget-favorites-add'); return f && f.closest('.btn-toolbar'); })()
+      : document.querySelector('.product__section--order');
+    if (anchor && !document.querySelector('.avt')) insertAfter(mk(trustHtml()), anchor);
+
+    if (isMobile) {
+      var card = document.querySelector('.product-card--main');
+      var box = card.querySelector('.product-card__order-box') || card;
+      /* видима головна кнопка: «Купити» або «В кошику», якщо товар уже доданий */
+      var primary = function () {
+        return [].filter.call(box.querySelectorAll('.j-buy-button-add, .btn--primary'), function (b) {
+          return b.offsetParent !== null && !b.classList.contains('j-submit');
+        })[0];
+      };
+      var newP = card.querySelector('.product-card__price--new');
+      var oldP = card.querySelector('.product-card__old-price');
+      if (primary() && newP) {
+        var bar = mk('<div id="avs-bar" role="region" aria-label="Купити"><div class="avs-p"><span class="avs-new"></span>' +
+          '<span class="avs-old"></span></div><button type="button" class="avs-btn">Купити</button></div>');
+        var barBtn = bar.querySelector('.avs-btn');
+        bar.querySelector('.avs-new').textContent = newP.textContent.trim();
+        if (oldP && oldP.textContent.trim()) bar.querySelector('.avs-old').textContent = oldP.textContent.trim();
+        document.body.appendChild(bar);
+        barBtn.addEventListener('click', function () { var b = primary(); if (b) b.click(); });
+        if ('IntersectionObserver' in window) {
+          new IntersectionObserver(function (e) {
+            var show = !e[0].isIntersecting && e[0].boundingClientRect.top < 0;
+            if (show) { var b = primary(); barBtn.textContent = (b && b.textContent.trim()) || 'Купити'; }
+            bar.classList.toggle('is-on', show);
+            document.body.classList.toggle('avs-has-bar', show);
+          }).observe(box);
+        }
+      }
+    }
+  }
+
+  /* ---------- Чекаут ---------- */
+  var order = document.querySelector('.checkout-aside .order');
+  if (order && !document.querySelector('.avt--aside')) insertAfter(mk(trustHtml('avt--aside')), order);
+
+  /* мобільний чекаут (окремий шаблон Хорошопа) */
+  if (document.querySelector('.checkout .tabs--boxed')) {
+    document.body.classList.add('avm-co');
+    var mcss = '' +
+      'body.avm-co{background:#F1C944 !important}' +
+      '.avm-co .auth{background:transparent}' +
+      '.avm-co .checkout .tabs__nav{background:rgba(255,255,255,.45);border-radius:2px;padding:3px;margin:0 0 12px;border:0}' +
+      '.avm-co .checkout .tabs__item{border-radius:2px;border:0 !important;font-weight:600}' +
+      '.avm-co .checkout .tabs__item.is-active{background:#fff}' +
+      '.avm-co .checkout .tabs__nav-wrap{display:flex;width:100%}' +
+      '.avm-co .checkout .tabs__item{flex:1;display:flex;justify-content:center;text-align:center;padding:10px 6px;font-size:13px}' +
+      '.avm-co .checkout .tabs__item::after,.avm-co .checkout .tabs__nav::after{display:none !important}' +
+      '.avm-co .checkout form{counter-reset:avstep}' +
+      '.avm-co .checkout .form__section.j-component{background:#fff;border-radius:12px;padding:18px 16px;margin:0 0 12px}' +
+      '.avm-co .checkout .form__section.j-component .form__head:first-child{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px}' +
+      '.avm-co .checkout .form__section.j-component .form__head:first-child::before{counter-increment:avstep;content:counter(avstep);flex:none;width:28px;height:28px;border-radius:2px;background:#F1C944;color:#1a1a1a;font-size:14px;display:flex;align-items:center;justify-content:center}' +
+      '.avm-co .checkout .form__section.is-disabled{opacity:.6}' +
+      '.avm-co .checkout .input,.avm-co .checkout .select__control,.avm-co .checkout textarea{border:1px solid #cfcfcf !important;border-radius:2px !important;background:#fff !important}' +
+      '.avm-co .checkout .input:focus,.avm-co .checkout .select__control:focus,.avm-co .checkout textarea:focus{border-color:#1a1a1a !important;box-shadow:0 0 0 2px #F1C944;outline:none}' +
+      '.avm-co .checkout .form__section--column{background:#fff;border-radius:12px;padding:16px;margin:0 0 12px}' +
+      '.avm-co .checkout .j-submit{height:54px;border-radius:2px !important;background:#1a1a1a !important;color:#fff !important;font-weight:700;font-size:16px;border:0 !important}' +
+      '.avm-co .checkout .j-submit.is-disabled,.avm-co .checkout .j-submit[disabled]{opacity:.7}' +
+      '.avm-co .order-details{background:#fff;border-radius:12px;overflow:hidden;margin-bottom:12px}' +
+      '.avm-co .order-details__total{font-size:22px;font-weight:800}' +
+      '.avm-co .avt--aside{margin:0 0 16px}';
+    var ms = document.createElement('style');
+    ms.textContent = mcss;
+    document.head.appendChild(ms);
+    var od = document.querySelector('.order-details');
+    if (od && !document.querySelector('.avt--aside')) insertAfter(mk(trustHtml('avt--aside')), od);
+  }
+})();
+</script>
