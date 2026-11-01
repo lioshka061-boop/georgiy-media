@@ -1,0 +1,76 @@
+<!-- Google tag: GA4 + Google Ads (один тег на весь сайт) -->
+<script async src='https://www.googletagmanager.com/gtag/js?id={SYSTEM_ID}'></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', '{SYSTEM_ID}');
+  gtag('config', 'AW-18371426306', { 'allow_enhanced_conversions': true });
+</script>
+<!-- AVI: конверсії Google Ads (покупка з реальною сумою, додавання в кошик) -->
+<script>
+(function () {
+  'use strict';
+  if (window.__aviTrack) return;
+  window.__aviTrack = true;
+
+  var AW = 'AW-18371426306';
+  var LABEL_PURCHASE = 'd-xQCOfZod0cEILwlrhE';
+  var LABEL_CART = 'LvPLCI3Gud0cEILwlrhE';
+  var CUR = 'UAH';
+  var SEEN = 'avx_tx';
+
+  var g = function () { window.dataLayer = window.dataLayer || []; window.dataLayer.push(arguments); };
+  var seen = function (id) {
+    try { var a = JSON.parse(localStorage.getItem(SEEN) || '[]'); if (a.indexOf(id) > -1) return true; a.push(id); localStorage.setItem(SEEN, JSON.stringify(a.slice(-30))); } catch (e) {}
+    return false;
+  };
+  var phone = function (p) {
+    var d = String(p || '').replace(/\D/g, '');
+    if (d.length === 10 && d.charAt(0) === '0') d = '38' + d;
+    else if (d.length === 9) d = '380' + d;
+    return d.length >= 11 ? '+' + d : '';
+  };
+  var purchase = function (orderId, value, email, tel) {
+    if (!orderId) return;
+    var id = String(orderId);
+    if (seen(id)) return;
+    var ud = {};
+    if (email && /@/.test(email)) ud.email = String(email).trim().toLowerCase();
+    var ph = phone(tel);
+    if (ph) ud.phone_number = ph;
+    if (ud.email || ud.phone_number) g('set', 'user_data', ud);
+    g('event', 'conversion', { send_to: AW + '/' + LABEL_PURCHASE, value: Math.round(+value || 0), currency: CUR, transaction_id: id });
+  };
+
+  /* 1) підписка на вбудовані події Хорошопу */
+  var hooked = false;
+  var hook = function () {
+    if (hooked) return true;
+    var me = window.GLOBAL && window.GLOBAL.marketingEvents;
+    if (!me) return false;
+    hooked = true;
+    (me.checkout_success = me.checkout_success || []).push(function (orderId, cart, name, email, tel) {
+      try { purchase(orderId, cart && cart.total && cart.total.total && cart.total.total.sum, email, tel); } catch (e) {}
+    });
+    (me.cart_product_add = me.cart_product_add || []).push(function (model) {
+      try { g('event', 'conversion', { send_to: AW + '/' + LABEL_CART, value: Math.round((+model.price || 0) * (+model.quantity || 1)), currency: CUR }); } catch (e) {}
+    });
+    return true;
+  };
+
+  /* 2) запасний варіант: покупка вже потрапила в dataLayer до нашого скрипта */
+  var scan = function () {
+    var dl = window.dataLayer || [];
+    for (var i = 0; i < dl.length; i++) {
+      var e = dl[i];
+      if (e && e.event === 'purchase' && e.ecommerce) purchase(e.ecommerce.transaction_id, e.ecommerce.value);
+      else if (e && e[0] === 'event' && e[1] === 'purchase' && e[2]) purchase(e[2].transaction_id, e[2].value);
+    }
+  };
+
+  if (!hook()) document.addEventListener('DOMContentLoaded', hook);
+  document.addEventListener('DOMContentLoaded', scan);
+  window.addEventListener('load', function () { hook(); scan(); });
+})();
+</script>
