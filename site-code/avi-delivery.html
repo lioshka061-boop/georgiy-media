@@ -51,6 +51,19 @@
   };
   var mk = function (h) { var d = document.createElement('div'); d.innerHTML = h; return d.firstChild; };
 
+  /* текст вкладки «Доставка» з налаштувань Хорошопу — замінюємо на актуальний */
+  var fixTab = function () {
+    [].forEach.call(document.querySelectorAll('p, div'), function (el) {
+      if (el.children.length > 2 || el.__avd) return;
+      if (/^\s*Доставка\s*за тарифами Нової Пошти\.?\s*$/i.test(el.textContent)) {
+        el.__avd = true;
+        el.innerHTML = '<b>Безкоштовна доставка</b> Новою поштою по всій Україні — у відділення, поштомат або кур’єром. Замовлення в будні до 16:00 відправляємо в той же день.';
+      }
+    });
+  };
+  fixTab();
+  setTimeout(fixTab, 1500);
+
   var place = function () {
     if (document.querySelector('.avd')) return true;
     var isMobile = !!document.querySelector('.product-card--main');
