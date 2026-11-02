@@ -1,0 +1,54 @@
+<!-- AVI SHOP: стиль кнопок «Порівняти / В бажання» та іконок шапки -->
+<script>
+(function () {
+  'use strict';
+  if (window.__aviUi) return;
+  window.__aviUi = true;
+  var Y = '#F1C944', K = '#1a1a1a';
+  var css = '' +
+    /* ---------- сторінка товару (ПК): Порівняти / В бажання ---------- */
+    '.product-toolbar{display:flex !important;gap:8px !important;align-items:center}' +
+    '.product-toolbar__item{margin:0 !important}' +
+    '.product-toolbar .comparison-button,.product-toolbar .favorites-button{display:inline-flex !important;align-items:center;gap:8px;height:44px;padding:0 14px !important;margin:0 !important;border:1px solid #dcdcdc !important;border-radius:2px !important;background:#fff !important;color:' + K + ' !important;cursor:pointer;transition:border-color .15s,background .15s,color .15s;box-shadow:none !important}' +
+    '.product-toolbar .comparison-button:hover,.product-toolbar .favorites-button:hover{border-color:' + K + ' !important}' +
+    '.product-toolbar .comparison-button__icon,.product-toolbar .favorites-button__icon{width:20px !important;height:20px !important;min-width:0 !important;margin:0 !important;padding:0 !important;border:0 !important;border-radius:0 !important;background:none !important;box-shadow:none !important;display:flex !important;align-items:center;justify-content:center;color:inherit !important}' +
+    '.product-toolbar .comparison-button__icon svg,.product-toolbar .favorites-button__icon svg{width:20px !important;height:20px !important;fill:currentColor;color:inherit}' +
+    '.product-toolbar .comparison-button__text,.product-toolbar .favorites-button__text{font:600 13px/1 Unbounded,Arial,sans-serif !important;color:inherit !important;border:0 !important;text-decoration:none !important;background:none !important;white-space:nowrap}' +
+    '.product-toolbar .comparison-button__text:after,.product-toolbar .favorites-button__text:after{display:none !important}' +
+    /* додано в порівняння / бажання */
+    '.product-toolbar .comparison-button.is-active,.product-toolbar .comparison-button.__active,.product-toolbar .comparison-button.active,' +
+    '.product-toolbar .favorites-button.is-active,.product-toolbar .favorites-button.__active,.product-toolbar .favorites-button.active' +
+    '{background:' + K + ' !important;border-color:' + K + ' !important;color:#fff !important}' +
+    '.product-toolbar .favorites-button.is-active svg,.product-toolbar .favorites-button.__active svg,.product-toolbar .favorites-button.active svg{color:' + Y + ' !important;fill:' + Y + ' !important}' +
+
+    /* ---------- шапка (ПК): Бажання / Вхід / Кошик ---------- */
+    '.header .favorites-view__button,.header .userbar__button,.header .basket__link{display:inline-flex !important;align-items:center;gap:8px;height:42px;padding:0 14px !important;border-radius:2px !important;text-decoration:none !important;transition:background .15s,color .15s}' +
+    '.header .favorites-view__button,.header .userbar__button{background:rgba(255,255,255,.55) !important;color:' + K + ' !important}' +
+    '.header .favorites-view__button:hover,.header .userbar__button:hover{background:#fff !important}' +
+    '.header .favorites-view__button-text,.header .userbar__button-text{font:700 12px/1 Unbounded,Arial,sans-serif !important;letter-spacing:.02em;color:inherit !important;text-transform:uppercase}' +
+    '.header .favorites-view__icon,.header .favorites-view__icon-container{width:20px !important;height:20px !important;margin:0 !important;position:relative}' +
+    '.header .favorites-view svg,.header .userbar__button svg{width:20px !important;height:20px !important;color:' + K + ' !important;fill:' + K + ' !important}' +
+    '.header .favorites-view__button.is-disabled{opacity:1 !important}' +
+    '.header .favorites-view__count{top:-8px !important;right:-10px !important;min-width:18px;height:18px;line-height:18px !important;padding:0 4px;border-radius:9px !important;background:' + K + ' !important;color:' + Y + ' !important;font:700 10px/18px Unbounded,Arial,sans-serif !important;text-align:center}' +
+    /* кошик — головна дія, чорна кнопка */
+    '.header .basket__link{background:' + K + ' !important;color:#fff !important}' +
+    '.header .basket__link:hover{background:#000 !important}' +
+    '.header .basket__icon{position:relative;width:22px !important;height:22px !important;margin:0 !important}' +
+    '.header .basket__icon svg{width:22px !important;height:22px !important;color:#fff !important;fill:#fff !important}' +
+    '.header .basket__items{position:absolute !important;top:-9px !important;right:-11px !important;left:auto !important;min-width:18px;height:18px;padding:0 4px;border-radius:9px !important;background:' + Y + ' !important;color:' + K + ' !important;font:700 10px/18px Unbounded,Arial,sans-serif !important;text-align:center}' +
+    '.header .basket__contents{margin:0 0 0 4px !important}' +
+    '.header .basket__value{font:700 13px/1 Unbounded,Arial,sans-serif !important;color:' + Y + ' !important;white-space:nowrap}' +
+
+    /* ---------- телефон: «До обраного / Порівняти» на картці товару ---------- */
+    '.product-card--main .btn-toolbar--equal-width{gap:8px}' +
+    '.product-card--main .btn-toolbar--equal-width .j-widget-favorites-add,.product-card--main .btn-toolbar--equal-width .j-widget-comparison-add{display:inline-flex !important;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 12px !important;border:1px solid #dcdcdc !important;border-radius:2px !important;background:#fff !important;color:' + K + ' !important;font:600 13px/1 Unbounded,Arial,sans-serif !important}' +
+    '.product-card--main .btn-toolbar--equal-width .btn__icon{margin:0 !important;width:18px;height:18px;display:flex;align-items:center;justify-content:center}' +
+    '.product-card--main .btn-toolbar--equal-width .btn__icon svg{width:18px !important;height:18px !important}' +
+    '.product-card--main .btn-toolbar--equal-width .btn__text{font:600 13px/1 Unbounded,Arial,sans-serif !important;text-decoration:none !important;border:0 !important}' +
+    '.product-card--main .btn-toolbar--equal-width .is-active,.product-card--main .btn-toolbar--equal-width .__active{background:' + K + ' !important;border-color:' + K + ' !important;color:#fff !important}';
+  var st = document.createElement('style');
+  st.id = 'avi-ui';
+  st.textContent = css;
+  (document.head || document.documentElement).appendChild(st);
+})();
+</script>
