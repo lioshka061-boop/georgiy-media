@@ -300,7 +300,7 @@
   /* ===== НАЛАШТУВАННЯ ===== */
   var TRUST = [
     { ico: 'shield', t: 'Гарантія 12 місяців', s: 'особисто від Георгія' },
-    { ico: 'truck',  t: 'Безкоштовна доставка', s: 'Новою поштою по Україні' },
+    { ico: 'card',   t: 'Оплата частинами', s: '4 платежі без переплати' },
     { ico: 'back',   t: 'Обмін і повернення', s: '14 днів за законом' }
   ];
   /* ======================== */
@@ -309,6 +309,7 @@
     shield: '<path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3Zm-1.2 14.2-3.5-3.5 1.4-1.4 2.1 2.1 4.9-4.9 1.4 1.4-6.3 6.3Z" fill="currentColor"/>',
     truck:  '<path d="M3 5h11v9H3V5Zm11 3h3.5L21 11.5V14h-7V8ZM6.5 18.5a1.8 1.8 0 1 0 0-3.6 1.8 1.8 0 0 0 0 3.6Zm11 0a1.8 1.8 0 1 0 0-3.6 1.8 1.8 0 0 0 0 3.6Z" fill="currentColor"/>',
     box:    '<path d="M12 2 3 6.5v11L12 22l9-4.5v-11L12 2Zm0 2.2 6.5 3.3L12 10.8 5.5 7.5 12 4.2ZM5 9.1l6 3v7.4l-6-3V9.1Zm8 10.4v-7.4l6-3v7.4l-6 3Z" fill="currentColor"/>',
+    card:   '<path d="M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm1 4v8h16V9H4Zm0-2h16V7H4v0Zm2 6h5v2H6v-2Z" fill="currentColor"/>',
     back:   '<path d="M12 4a8 8 0 1 1-7.4 5H2l3.5-4L9 9H6.7A6 6 0 1 0 12 6V4Z" fill="currentColor"/>'
   };
   var svg = function (p) { return '<svg viewBox="0 0 24 24" aria-hidden="true">' + p + '</svg>'; };
@@ -1129,5 +1130,63 @@
   if (!place()) {
     var n = 0, t = setInterval(function () { if (place() || ++n > 20) clearInterval(t); }, 300);
   }
+})();
+</script>
+<!-- AVI SHOP: стиль кнопок «Порівняти / В бажання» та іконок шапки -->
+<script>
+(function () {
+  'use strict';
+  if (window.__aviUi) return;
+  window.__aviUi = true;
+  var Y = '#F1C944', K = '#1a1a1a';
+  var css = '' +
+    /* ---------- сторінка товару (ПК): Порівняти / В бажання ---------- */
+    '.product-toolbar{display:flex !important;gap:8px !important;align-items:center}' +
+    '.product-toolbar__item{margin:0 !important}' +
+    '.product-toolbar .comparison-button,.product-toolbar .favorites-button{display:inline-flex !important;align-items:center;gap:8px;height:44px;padding:0 14px !important;margin:0 !important;border:1px solid #dcdcdc !important;border-radius:2px !important;background:#fff !important;color:' + K + ' !important;cursor:pointer;transition:border-color .15s,background .15s,color .15s;box-shadow:none !important}' +
+    '.product-toolbar .comparison-button:hover,.product-toolbar .favorites-button:hover{border-color:' + K + ' !important}' +
+    '.product-toolbar .comparison-button__icon,.product-toolbar .favorites-button__icon{width:20px !important;height:20px !important;min-width:0 !important;margin:0 !important;padding:0 !important;border:0 !important;border-radius:0 !important;background:none !important;box-shadow:none !important;display:flex !important;align-items:center;justify-content:center;color:inherit !important}' +
+    '.product-toolbar .comparison-button__icon svg,.product-toolbar .favorites-button__icon svg{width:20px !important;height:20px !important;fill:currentColor;color:inherit}' +
+    '.product-toolbar .comparison-button__text,.product-toolbar .favorites-button__text{font:600 13px/1 Unbounded,Arial,sans-serif !important;color:inherit !important;border:0 !important;text-decoration:none !important;background:none !important;white-space:nowrap}' +
+    '.product-toolbar .comparison-button__text:after,.product-toolbar .favorites-button__text:after{display:none !important}' +
+    /* додано в порівняння / бажання */
+    '.product-toolbar .comparison-button.is-active,.product-toolbar .comparison-button.__active,.product-toolbar .comparison-button.active,' +
+    '.product-toolbar .favorites-button.is-active,.product-toolbar .favorites-button.__active,.product-toolbar .favorites-button.active' +
+    '{background:' + K + ' !important;border-color:' + K + ' !important;color:#fff !important}' +
+    '.product-toolbar .favorites-button.is-active svg,.product-toolbar .favorites-button.__active svg,.product-toolbar .favorites-button.active svg{color:' + Y + ' !important;fill:' + Y + ' !important}' +
+
+    /* ---------- шапка (ПК): Бажання / Вхід / Кошик ---------- */
+    '.header .favorites-view__button,.header .userbar__button,.header .basket__link{display:inline-flex !important;align-items:center;gap:8px;height:42px;padding:0 14px !important;border-radius:2px !important;text-decoration:none !important;transition:background .15s,color .15s}' +
+    '.header .favorites-view__button,.header .userbar__button{background:rgba(255,255,255,.55) !important;color:' + K + ' !important}' +
+    '.header .favorites-view__button:hover,.header .userbar__button:hover{background:#fff !important}' +
+    '.header .favorites-view__button-text,.header .userbar__button-text{font:700 12px/1 Unbounded,Arial,sans-serif !important;letter-spacing:.02em;color:inherit !important;text-transform:uppercase}' +
+    '.header .favorites-view__icon,.header .favorites-view__icon-container{width:20px !important;height:20px !important;margin:0 !important;position:relative}' +
+    '.header .favorites-view svg,.header .userbar__button svg{width:20px !important;height:20px !important;color:' + K + ' !important;fill:' + K + ' !important}' +
+    '.header .favorites-view__button.is-disabled{opacity:1 !important}' +
+    '.header .favorites-view__count{top:-8px !important;right:-10px !important;min-width:18px;height:18px;line-height:18px !important;padding:0 4px;border-radius:9px !important;background:' + K + ' !important;color:' + Y + ' !important;font:700 10px/18px Unbounded,Arial,sans-serif !important;text-align:center}' +
+    /* кошик — головна дія, чорна кнопка */
+    '.header .basket__link{background:' + K + ' !important;color:#fff !important}' +
+    '.header .basket__link:hover{background:#000 !important}' +
+    '.header .basket__icon{position:relative;width:22px !important;height:22px !important;margin:0 !important}' +
+    '.header .basket__icon svg{width:22px !important;height:22px !important;color:#fff !important;fill:#fff !important}' +
+    '.header .basket__items{position:absolute !important;top:-9px !important;right:-11px !important;left:auto !important;min-width:18px;height:18px;padding:0 4px;border-radius:9px !important;background:' + Y + ' !important;color:' + K + ' !important;font:700 10px/18px Unbounded,Arial,sans-serif !important;text-align:center}' +
+    '.header .basket__contents{margin:0 0 0 4px !important}' +
+    '.header .basket__value{font:700 13px/1 Unbounded,Arial,sans-serif !important;color:' + Y + ' !important;white-space:nowrap}' +
+
+    /* ---------- логотип у шапці ПК: був обрізаний контейнером 40px ---------- */
+    '.header__logo{height:auto !important;overflow:visible !important;padding:6px 0}' +
+    '.header__logo img.header-logo-img{height:56px !important;width:auto !important;max-width:none !important;object-fit:contain;display:block}' +
+
+    /* ---------- телефон: «До обраного / Порівняти» на картці товару ---------- */
+    '.btn-toolbar--equal-width{gap:8px}' +
+    '.btn-toolbar--equal-width .j-widget-favorites-add,.btn-toolbar--equal-width .j-widget-comparison-add{display:inline-flex !important;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 12px !important;border:1px solid #dcdcdc !important;border-radius:2px !important;background:#fff !important;color:' + K + ' !important;font:600 13px/1 Unbounded,Arial,sans-serif !important}' +
+    '.btn-toolbar--equal-width .btn__icon{margin:0 !important;width:18px;height:18px;display:flex;align-items:center;justify-content:center}' +
+    '.btn-toolbar--equal-width .btn__icon svg{width:18px !important;height:18px !important}' +
+    '.btn-toolbar--equal-width .btn__text{font:600 13px/1 Unbounded,Arial,sans-serif !important;text-decoration:none !important;border:0 !important}' +
+    '.btn-toolbar--equal-width .is-active,.btn-toolbar--equal-width .__active{background:' + K + ' !important;border-color:' + K + ' !important;color:#fff !important}';
+  var st = document.createElement('style');
+  st.id = 'avi-ui';
+  st.textContent = css;
+  (document.head || document.documentElement).appendChild(st);
 })();
 </script>
