@@ -1188,5 +1188,28 @@
   st.id = 'avi-ui';
   st.textContent = css;
   (document.head || document.documentElement).appendChild(st);
+
+  /* «Порівняти / В бажання» — над зеленим блоком «Безкоштовна доставка · Відправимо сьогодні» */
+  var moveBar = function () {
+    var ship = document.querySelector('.avx-ship');
+    if (!ship) return false;
+    var bar = document.querySelector('.product-toolbar');
+    if (!bar) {
+      var f = document.querySelector('.btn-toolbar--equal-width .j-widget-favorites-add');
+      bar = f && f.closest('.btn-toolbar--equal-width');
+    }
+    if (!bar) return false;
+    if (bar.nextElementSibling !== ship) {
+      bar.classList.add('avi-bar-moved');
+      ship.parentNode.insertBefore(bar, ship);
+    }
+    return true;
+  };
+  var st2 = document.createElement('style');
+  st2.textContent = '.avi-bar-moved{display:flex !important;gap:8px !important;margin:14px 0 0 !important;padding:0 !important;justify-content:flex-start}' +
+    '.avi-bar-moved + .avx-ship{margin-top:10px !important}' +
+    '.btn-toolbar--equal-width.avi-bar-moved > *{flex:1 1 0}';
+  document.head.appendChild(st2);
+  if (!moveBar()) { var n = 0, t = setInterval(function () { if (moveBar() || ++n > 30) clearInterval(t); }, 300); }
 })();
 </script>
