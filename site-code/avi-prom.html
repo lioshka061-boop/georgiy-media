@@ -1,0 +1,122 @@
+<!-- AVI SHOP: «Перевірений продавець на Prom.ua» — живі дані з офіційного віджета Prom, наш дизайн -->
+<script>
+(function () {
+  'use strict';
+  if (window.__aviProm) return;
+  window.__aviProm = true;
+
+  var STORES = [
+    { id: 3820771, name: 'avishop.com.ua' },
+    { id: 3802720, name: 'O&P' }
+  ];
+  var SELLER = 'ФОП Пасічник С. А.';
+  var KEY = 'avx_prom_v1', TTL = 6 * 3600 * 1000;
+
+  var path = location.pathname.replace(/\/+$/, '');
+  var isHome = path === '' || path === '/ua' || path === '/uk';
+  var isProduct = !!document.querySelector('meta[itemprop="sku"]');
+  if (!isHome && !isProduct) return;
+
+  var plural = function (n) {
+    var a = n % 10, b = n % 100;
+    return a === 1 && b !== 11 ? 'відгук' : a >= 2 && a <= 4 && (b < 12 || b > 14) ? 'відгуки' : 'відгуків';
+  };
+  var num = function (n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); };
+
+  /* ті самі дані, що показує офіційний віджет Prom */
+  var load = function (s) {
+    return fetch('https://prom.ua/renders/certification_widget/widget?widgetSize=740x180&widgetLanguage=uk&companyId=' + s.id)
+      .then(function (r) { return r.ok ? r.text() : ''; })
+      .then(function (h) {
+        var m = h.match(/(\d{1,3})%\s*позитивних\s*з\s*(\d[\d\s]*)\s*відгук/);
+        return m ? { id: s.id, name: s.name, pct: +m[1], cnt: +m[2].replace(/\s/g, '') } : null;
+      })['catch'](function () { return null; });
+  };
+  var getData = function () {
+    try {
+      var c = JSON.parse(sessionStorage.getItem(KEY) || 'null');
+      if (c && Date.now() - c.t < TTL && c.d && c.d.length) return Promise.resolve(c.d);
+    } catch (e) {}
+    return Promise.all(STORES.map(load)).then(function (list) {
+      var d = list.filter(Boolean);
+      try { if (d.length) sessionStorage.setItem(KEY, JSON.stringify({ t: Date.now(), d: d })); } catch (e) {}
+      return d;
+    });
+  };
+
+  var Y = '#F1C944', K = '#1a1a1a';
+  var css = '' +
+    '.avpr{box-sizing:border-box;font-family:Unbounded,Arial,Helvetica,sans-serif;color:' + K + ';background:#fff;border:1px solid #ececec;border-radius:12px;padding:16px 18px;margin:14px 0 0}' +
+    '.avpr *{box-sizing:border-box}' +
+    '.avpr-top{display:flex;align-items:center;gap:12px}' +
+    '.avpr-ico{flex:none;width:44px;height:44px;border-radius:2px;background:' + Y + ';display:flex;align-items:center;justify-content:center}' +
+    '.avpr-ico svg{width:24px;height:24px}' +
+    '.avpr-h{flex:1;min-width:0}' +
+    '.avpr-h b{display:block;font-size:15px;font-weight:800;line-height:1.25}' +
+    '.avpr-h small{display:block;margin-top:3px;font-size:11.5px;color:#6b6b6b;line-height:1.35}' +
+    '.avpr-big{flex:none;text-align:right;line-height:1}' +
+    '.avpr-big b{display:block;font-size:24px;font-weight:800}' +
+    '.avpr-big small{display:block;margin-top:4px;font-size:10.5px;color:#6b6b6b;white-space:nowrap}' +
+    '.avpr-list{display:grid;gap:10px;margin:14px 0 0;padding:12px 0 0;border-top:1px solid #f0f0f0}' +
+    '.avpr-row{display:grid;grid-template-columns:minmax(0,120px) 1fr auto;align-items:center;gap:10px;font-size:12px;text-decoration:none !important;color:' + K + ' !important}' +
+    '.avpr-row span{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
+    '.avpr-bar{height:8px;border-radius:2px;background:#f0f0f0;overflow:hidden}' +
+    '.avpr-bar i{display:block;height:100%;background:' + K + '}' +
+    '.avpr-row em{font-style:normal;color:#6b6b6b;white-space:nowrap}' +
+    '.avpr-row:hover em{color:' + K + ';text-decoration:underline}' +
+    '.avpr-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;font-size:11px;color:#8a8a8a}' +
+    '.avpr-foot a{color:' + K + ' !important;font-weight:700;text-decoration:none !important;border-bottom:1.5px solid ' + Y + '}' +
+    /* головна: широкий варіант */
+    '.avpr-sec{padding:0 0 8px}' +
+    '.avpr-sec .avpr-wrap{max-width:1360px;margin:0 auto;padding:0 20px}' +
+    '.avpr--wide{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:24px;align-items:center;margin:0;padding:20px 24px}' +
+    '.avpr--wide .avpr-list{margin:0;padding:0 0 0 24px;border-top:0;border-left:1px solid #f0f0f0}' +
+    '.avpr--wide .avpr-foot{grid-column:1/-1;margin-top:0}' +
+    '@media (max-width:760px){.avpr--wide{grid-template-columns:1fr;gap:0;padding:16px}.avpr--wide .avpr-list{margin-top:14px;padding:12px 0 0;border-left:0;border-top:1px solid #f0f0f0}.avpr--wide .avpr-foot{margin-top:12px}.avpr-row{grid-template-columns:minmax(0,96px) 1fr auto}}';
+
+  var shield = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 5 6v5c0 4.4 3 8.3 7 9.5 4-1.2 7-5.1 7-9.5V6l-7-3z"/><path d="m9 12 2 2 4-4"/></svg>';
+
+  var html = function (d, wide) {
+    var total = d.reduce(function (s, x) { return s + x.cnt; }, 0);
+    var pct = Math.round(d.reduce(function (s, x) { return s + x.pct * x.cnt; }, 0) / total);
+    var main = 'https://prom.ua/opinions/list/' + d[0].id;
+    return '<div class="avpr' + (wide ? ' avpr--wide' : '') + '">' +
+      '<div class="avpr-top"><span class="avpr-ico">' + shield + '</span>' +
+      '<div class="avpr-h"><b>Перевірений продавець на Prom.ua</b><small>' + SELLER + ' · ' + num(total) + ' ' + plural(total) + ' від покупців</small></div>' +
+      '<div class="avpr-big"><b>' + pct + '%</b><small>позитивних</small></div></div>' +
+      '<div class="avpr-list">' + d.map(function (x) {
+        return '<a class="avpr-row" href="https://prom.ua/opinions/list/' + x.id + '" target="_blank" rel="noopener">' +
+          '<span>' + x.name + '</span><div class="avpr-bar"><i style="width:' + x.pct + '%"></i></div>' +
+          '<em>' + x.pct + '% · ' + num(x.cnt) + '</em></a>';
+      }).join('') + '</div>' +
+      '<div class="avpr-foot"><span>Дані оновлюються автоматично з Prom.ua</span><a href="' + main + '" target="_blank" rel="noopener">Читати відгуки</a></div>' +
+      '</div>';
+  };
+  var mk = function (h) { var x = document.createElement('div'); x.innerHTML = h; return x.firstChild; };
+  var after = function (el, ref) { ref.parentNode.insertBefore(el, ref.nextSibling); };
+
+  var place = function (d) {
+    if (document.querySelector('.avpr')) return true;
+    if (isHome) {
+      var ben = document.querySelector('.avh-ben');
+      if (!ben) return false;
+      var sec = mk('<section class="avh avpr-sec"><div class="avpr-wrap">' + html(d, true) + '</div></section>');
+      after(sec, ben);
+      return true;
+    }
+    /* товар: одразу під рядком «Гарантія · Частинами · Повернення» */
+    var ref = document.querySelector('.avt') || document.querySelector('.avd');
+    if (!ref) return false;
+    after(mk(html(d, false)), ref);
+    return true;
+  };
+
+  getData().then(function (d) {
+    if (!d || !d.length) return; /* немає свіжих даних з Prom — нічого не показуємо */
+    var st = document.createElement('style');
+    st.textContent = css;
+    document.head.appendChild(st);
+    if (!place(d)) { var n = 0, t = setInterval(function () { if (place(d) || ++n > 30) clearInterval(t); }, 300); }
+  });
+})();
+</script>
