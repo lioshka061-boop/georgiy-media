@@ -1288,24 +1288,20 @@
   window.addEventListener('load', hook);
 })();
 </script>
-<!-- AVI SHOP: «Перевірений продавець на Prom.ua» — живі дані з офіційного віджета Prom, наш дизайн -->
+<!-- AVI SHOP: плитка «96% позитивних відгуків · N на Prom.ua» у рядку довіри та перевагах — живі дані з віджета Prom, без переходу на Prom -->
 <script>
 (function () {
   'use strict';
   if (window.__aviProm) return;
   window.__aviProm = true;
 
-  var STORES = [
-    { id: 3820771, name: 'avishop.com.ua' },
-    { id: 3802720, name: 'O&P' }
-  ];
-  var SELLER = 'ФОП Пасічник С. А.';
-  var KEY = 'avx_prom_v1', TTL = 6 * 3600 * 1000;
+  var STORES = [3820771, 3802720]; /* avishop.com.ua та O&P — один продавець, ФОП Пасічник */
+  var KEY = 'avx_prom_v2', TTL = 6 * 3600 * 1000;
 
   var path = location.pathname.replace(/\/+$/, '');
   var isHome = path === '' || path === '/ua' || path === '/uk';
   var isProduct = !!document.querySelector('meta[itemprop="sku"]');
-  if (!isHome && !isProduct) return;
+  if (!isHome && !isProduct && !/checkout|cart|basket/.test(path)) return;
 
   var plural = function (n) {
     var a = n % 10, b = n % 100;
@@ -1313,100 +1309,73 @@
   };
   var num = function (n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); };
 
-  /* ті самі дані, що показує офіційний віджет Prom */
-  var load = function (s) {
-    return fetch('https://prom.ua/renders/certification_widget/widget?widgetSize=740x180&widgetLanguage=uk&companyId=' + s.id)
+  var load = function (id) {
+    return fetch('https://prom.ua/renders/certification_widget/widget?widgetSize=740x180&widgetLanguage=uk&companyId=' + id)
       .then(function (r) { return r.ok ? r.text() : ''; })
       .then(function (h) {
         var m = h.match(/(\d{1,3})%\s*позитивних\s*з\s*(\d[\d\s]*)\s*відгук/);
-        return m ? { id: s.id, name: s.name, pct: +m[1], cnt: +m[2].replace(/\s/g, '') } : null;
+        return m ? { pct: +m[1], cnt: +m[2].replace(/\s/g, '') } : null;
       })['catch'](function () { return null; });
   };
   var getData = function () {
     try {
       var c = JSON.parse(sessionStorage.getItem(KEY) || 'null');
-      if (c && Date.now() - c.t < TTL && c.d && c.d.length) return Promise.resolve(c.d);
+      if (c && Date.now() - c.t < TTL && c.d) return Promise.resolve(c.d);
     } catch (e) {}
     return Promise.all(STORES.map(load)).then(function (list) {
-      var d = list.filter(Boolean);
-      try { if (d.length) sessionStorage.setItem(KEY, JSON.stringify({ t: Date.now(), d: d })); } catch (e) {}
+      list = list.filter(Boolean);
+      if (!list.length) return null;
+      var cnt = list.reduce(function (s, x) { return s + x.cnt; }, 0);
+      var d = { cnt: cnt, pct: Math.round(list.reduce(function (s, x) { return s + x.pct * x.cnt; }, 0) / cnt) };
+      try { sessionStorage.setItem(KEY, JSON.stringify({ t: Date.now(), d: d })); } catch (e) {}
       return d;
     });
   };
 
-  var Y = '#F1C944', K = '#1a1a1a';
+  var star = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2.8 2.8 5.7 6.3.9-4.6 4.4 1.1 6.2L12 17.1 6.4 20l1.1-6.2L2.9 9.4l6.3-.9L12 2.8Z" fill="currentColor"/></svg>';
+  var starL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="m12 3.5 2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.8l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8L12 3.5Z"/></svg>';
+  var t1 = function (d) { return d.pct + '% позитивних відгуків'; };
+  var t2 = function (d) { return num(d.cnt) + ' ' + plural(d.cnt) + ' покупців на Prom.ua'; };
+
   var css = '' +
-    '.avpr{box-sizing:border-box;font-family:Unbounded,Arial,Helvetica,sans-serif;color:' + K + ';background:#fff;border:1px solid #ececec;border-radius:12px;padding:16px 18px;margin:14px 0 0}' +
-    '.avpr *{box-sizing:border-box}' +
-    '.avpr-top{display:flex;align-items:center;gap:12px}' +
-    '.avpr-ico{flex:none;width:44px;height:44px;border-radius:2px;background:' + Y + ';display:flex;align-items:center;justify-content:center}' +
-    '.avpr-ico svg{width:24px;height:24px}' +
-    '.avpr-h{flex:1;min-width:0}' +
-    '.avpr-h b{display:block;font-size:15px;font-weight:800;line-height:1.25}' +
-    '.avpr-h small{display:block;margin-top:3px;font-size:11.5px;color:#6b6b6b;line-height:1.35}' +
-    '.avpr-big{flex:none;text-align:right;line-height:1}' +
-    '.avpr-big b{display:block;font-size:24px;font-weight:800}' +
-    '.avpr-big small{display:block;margin-top:4px;font-size:10.5px;color:#6b6b6b;white-space:nowrap}' +
-    '.avpr-list{display:grid;gap:10px;margin:14px 0 0;padding:12px 0 0;border-top:1px solid #f0f0f0}' +
-    '.avpr-row{display:grid;grid-template-columns:132px 1fr auto;align-items:center;gap:10px;font-size:12px;text-decoration:none !important;color:' + K + ' !important}' +
-    '.avpr-row span{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
-    '.avpr-bar{height:8px;border-radius:2px;background:#f0f0f0;overflow:hidden}' +
-    '.avpr-bar i{display:block;height:100%;background:' + K + '}' +
-    '.avpr-row em{font-style:normal;color:#6b6b6b;white-space:nowrap}' +
-    '.avpr-row:hover em{color:' + K + ';text-decoration:underline}' +
-    '.avpr-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;font-size:11px;color:#8a8a8a}' +
-    '.avpr-foot a{color:' + K + ' !important;font-weight:700;text-decoration:none !important;border-bottom:1.5px solid ' + Y + '}' +
-    /* головна: широкий варіант */
-    '.avpr-sec{padding:0 0 8px}' +
-    '.avpr-sec .avpr-wrap{max-width:1360px;margin:0 auto;padding:0 20px}' +
-    '.avpr--wide{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:24px;align-items:center;margin:0;padding:20px 24px}' +
-    '.avpr--wide .avpr-list{margin:0;padding:0 0 0 24px;border-top:0;border-left:1px solid #f0f0f0}' +
-    '.avpr--wide .avpr-foot{grid-column:1/-1;margin-top:0}' +
-    '@media (max-width:760px){.avpr-h b{font-size:14px}.avpr-big b{font-size:22px}.avpr-sec{padding:12px 0 8px}.avpr--wide{grid-template-columns:1fr;gap:0;padding:16px}.avpr--wide .avpr-list{margin-top:14px;padding:12px 0 0;border-left:0;border-top:1px solid #f0f0f0}.avpr--wide .avpr-foot{margin-top:12px}.avpr-row{grid-template-columns:118px 1fr auto;font-size:11px}}';
-
-  var shield = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 5 6v5c0 4.4 3 8.3 7 9.5 4-1.2 7-5.1 7-9.5V6l-7-3z"/><path d="m9 12 2 2 4-4"/></svg>';
-
-  var html = function (d, wide) {
-    var total = d.reduce(function (s, x) { return s + x.cnt; }, 0);
-    var pct = Math.round(d.reduce(function (s, x) { return s + x.pct * x.cnt; }, 0) / total);
-    var main = 'https://prom.ua/opinions/list/' + d[0].id;
-    return '<div class="avpr' + (wide ? ' avpr--wide' : '') + '">' +
-      '<div class="avpr-top"><span class="avpr-ico">' + shield + '</span>' +
-      '<div class="avpr-h"><b>Перевірений продавець на Prom.ua</b><small>' + SELLER + ' · ' + num(total) + ' ' + plural(total) + ' від покупців</small></div>' +
-      '<div class="avpr-big"><b>' + pct + '%</b><small>позитивних</small></div></div>' +
-      '<div class="avpr-list">' + d.map(function (x) {
-        return '<a class="avpr-row" href="https://prom.ua/opinions/list/' + x.id + '" target="_blank" rel="noopener">' +
-          '<span>' + x.name + '</span><div class="avpr-bar"><i style="width:' + x.pct + '%"></i></div>' +
-          '<em>' + x.pct + '% · ' + num(x.cnt) + '</em></a>';
-      }).join('') + '</div>' +
-      '<div class="avpr-foot"><span>Дані оновлюються автоматично з Prom.ua</span><a href="' + main + '" target="_blank" rel="noopener">Читати відгуки</a></div>' +
-      '</div>';
-  };
-  var mk = function (h) { var x = document.createElement('div'); x.innerHTML = h; return x.firstChild; };
-  var after = function (el, ref) { ref.parentNode.insertBefore(el, ref.nextSibling); };
+    /* товар: 4 плитки сіткою 2×2 */
+    '.avt.avpr-on:not(.avt--aside){grid-template-columns:repeat(2,1fr) !important}' +
+    '@media (max-width:420px){.avt.avpr-on:not(.avt--aside){grid-template-columns:1fr !important}}' +
+    /* головна: 6 переваг */
+    '@media (min-width:1101px){.avh-ben-list.avpr-on{grid-template-columns:repeat(6,1fr) !important;gap:12px !important}}';
 
   var place = function (d) {
-    if (document.querySelector('.avpr')) return true;
-    if (isHome) {
-      var ben = document.querySelector('.avh-ben');
-      if (!ben) return false;
-      var sec = mk('<section class="avh avpr-sec"><div class="avpr-wrap">' + html(d, true) + '</div></section>');
-      after(sec, ben);
-      return true;
+    var done = false;
+    /* рядок довіри на товарі + блоки в кошику/оформленні */
+    [].forEach.call(document.querySelectorAll('.avt'), function (row) {
+      done = true;
+      if (row.querySelector('.avpr-i')) return;
+      var el = document.createElement('div');
+      el.className = 'avt-i avpr-i';
+      el.innerHTML = '<span class="avt-ico">' + star + '</span><span><b>' + t1(d) + '</b><small>' + t2(d) + '</small></span>';
+      row.appendChild(el);
+      row.classList.add('avpr-on');
+    });
+    var ben = document.querySelector('.avh-ben-list');
+    if (ben) {
+      done = true;
+      if (!ben.querySelector('.avpr-i')) {
+        var li = document.createElement('li');
+        li.className = 'avh-ben-i avpr-i';
+        li.innerHTML = '<span class="avh-ben-ico">' + starL + '</span><span><b>' + t1(d) + '</b><small>' + t2(d) + '</small></span>';
+        ben.appendChild(li);
+        ben.classList.add('avpr-on');
+      }
     }
-    /* товар: одразу під рядком «Гарантія · Частинами · Повернення» */
-    var ref = document.querySelector('.avt') || document.querySelector('.avd');
-    if (!ref) return false;
-    after(mk(html(d, false)), ref);
-    return true;
+    return done;
   };
 
   getData().then(function (d) {
-    if (!d || !d.length) return; /* немає свіжих даних з Prom — нічого не показуємо */
+    if (!d) return;
     var st = document.createElement('style');
     st.textContent = css;
     document.head.appendChild(st);
-    if (!place(d)) { var n = 0, t = setInterval(function () { if (place(d) || ++n > 30) clearInterval(t); }, 300); }
+    place(d); var n = 0, t = setInterval(function () { place(d); if (++n > 20) clearInterval(t); }, 500);
   });
 })();
 </script>
