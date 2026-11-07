@@ -99,7 +99,7 @@
       var head = el.querySelector('.avp-head-t');
       if (head) {
         var pf = Math.min.apply(null, NS.map(function (k) { return Math.ceil(total(p, k) / k); }));
-        head.innerHTML = '<b>Частинами від <span>' + fmt(pf) + ' грн/міс</span></b><small>' + FREE + ' платежі без переплати</small>';
+        head.innerHTML = '<b>Частинами від <span>' + fmt(pf) + ' грн/міс</span></b><small>або ' + FREE + ' × ' + fmt(Math.ceil(p / FREE)) + ' грн — без переплати</small>';
       }
       if (opts.onChange) opts.onChange(n, per, t);
     };

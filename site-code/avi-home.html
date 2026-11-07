@@ -69,7 +69,7 @@
     '.avh-rev-row{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(220px,1fr);gap:16px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x mandatory}' +
     '.avh-card{scroll-snap-align:start;background:#262626;border-radius:12px;overflow:hidden;display:flex;flex-direction:column}' +
     '.avh-vid{position:relative;aspect-ratio:9/16;background:#000;cursor:pointer}' +
-    '.avh-vid video{width:100%;height:100%;object-fit:cover;display:block}' +
+    '.avh-vid video,.avh-vid img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}' +
     '.avh-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(transparent 55%,rgba(0,0,0,.6));border:0;color:#fff;cursor:pointer}' +
     '.avh-play span{width:58px;height:58px;border-radius:2px;background:#F1C944;color:#1a1a1a;display:flex;align-items:center;justify-content:center}' +
     '.avh-play svg{width:26px;height:26px}' +
@@ -138,6 +138,9 @@
   var revAnchor = promo || ben;
   after(rev, revAnchor);
   rev.style.display = 'none';
+  /* raw.githubusercontent → jsDelivr CDN (швидше, з кешем); постер = site/posters/<ім'я>.jpg */
+  var cdn = function (u) { return String(u).replace(/^https:\/\/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\/([^/]+)\//, 'https://cdn.jsdelivr.net/gh/$1/$2@$3/'); };
+  var poster = function (u) { return cdn(u).replace(/\/site\/([^/]+)\.mp4(\?.*)?$/, '/site/posters/$1.jpg'); };
   var playSvg = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
   fetch(REVIEWS_URL + '?h=' + Math.floor(Date.now() / 3600000)).then(function (r) { return r.ok ? r.json() : null; }).then(function (list) {
     if (!list) return;
@@ -146,16 +149,26 @@
       .sort(function (a, b) { return String(b.date || '').localeCompare(String(a.date || '')); }).slice(0, 8);
     if (!items.length) return;
     rev.querySelector('.avh-rev-row').innerHTML = items.map(function (x) {
-      return '<article class="avh-card"><div class="avh-vid"><video src="' + esc(x.video) + '#t=0.5" preload="metadata" playsinline></video>' +
+      return '<article class="avh-card"><div class="avh-vid" data-v="' + esc(cdn(x.video)) + '"><img src="' + esc(poster(x.video)) + '" alt="" loading="lazy" decoding="async" onerror="this.style.display=\'none\'">' +
         (x.rating ? '<span class="avh-rate">' + x.rating + '/10</span>' : '') +
         '<button type="button" class="avh-play" aria-label="Дивитись огляд ' + esc(x.name) + '"><span>' + playSvg + '</span></button></div>' +
         '<div class="avh-card-b"><b>' + esc(x.name) + '</b><a class="avh-btn" href="' + esc(x.url) + '">До товару</a></div></article>';
     }).join('');
     [].forEach.call(rev.querySelectorAll('.avh-card'), function (c) {
-      var v = c.querySelector('video');
+      var box = c.querySelector('.avh-vid');
       c.querySelector('.avh-play').addEventListener('click', function () {
-        [].forEach.call(rev.querySelectorAll('video'), function (o) { if (o !== v) o.pause(); });
-        c.classList.add('is-playing'); v.controls = true; v.play();
+        [].forEach.call(rev.querySelectorAll('video'), function (o) { o.pause(); });
+        var v = box.querySelector('video');
+        if (!v) {
+          /* відео вантажиться лише після натискання — на головній 0 МБ відео */
+          v = document.createElement('video');
+          v.src = box.getAttribute('data-v');
+          v.controls = true; v.playsInline = true; v.preload = 'auto';
+          var img = box.querySelector('img'); if (img) v.poster = img.src;
+          box.insertBefore(v, box.firstChild);
+          if (img) img.remove();
+        }
+        c.classList.add('is-playing'); v.play();
       });
     });
     rev.style.display = '';

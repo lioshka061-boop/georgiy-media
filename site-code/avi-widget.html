@@ -169,7 +169,9 @@
     var show = function (k) {
       player.className = 'avw-player avw-player--' + k;
       if (k === 'video') {
-        player.innerHTML = '<video src="' + review.video + '" controls playsinline preload="metadata" title="Відеоогляд"></video>';
+        var vu = String(review.video).replace(/^https:\/\/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\/([^/]+)\//, 'https://cdn.jsdelivr.net/gh/$1/$2@$3/');
+        var pu = vu.replace(/\/site\/([^/]+)\.mp4(\?.*)?$/, '/site/posters/$1.jpg');
+        player.innerHTML = '<video src="' + vu + '" poster="' + pu + '" controls playsinline preload="none" title="Відеоогляд"></video>';
       } else {
         player.innerHTML = '<iframe src="' + embedUrl[k](review[k]) + '" loading="lazy" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen title="Відеоогляд"></iframe>';
       }

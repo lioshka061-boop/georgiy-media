@@ -1,0 +1,60 @@
+<!-- AVI SHOP: Google Customer Reviews — запит на відгук лише після оформлення замовлення, з реальними даними -->
+<script>
+(function () {
+  'use strict';
+  if (window.__aviGcr) return;
+  window.__aviGcr = true;
+
+  var MERCHANT_ID = 5834904959;
+  var DAYS = 4; /* відправка сьогодні/завтра + 1–3 дні Новою поштою */
+
+  var eta = function () {
+    var d = new Date(), n = 0;
+    while (n < DAYS) { d.setDate(d.getDate() + 1); if (d.getDay() !== 0) n++; }
+    return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+  };
+
+  var shown = false;
+  var optIn = function (orderId, email, cart) {
+    if (shown || !orderId || !email || !/@/.test(email)) return;
+    shown = true;
+    var products = [];
+    try {
+      var items = (cart && (cart.products || cart.items)) || [];
+      [].forEach.call(items, function (p) { var g = p && (p.gtin || p.barcode || p.ean); if (g) products.push({ gtin: String(g) }); });
+    } catch (e) {}
+    window.renderOptIn = function () {
+      window.gapi.load('surveyoptin', function () {
+        var o = {
+          merchant_id: MERCHANT_ID,
+          order_id: String(orderId),
+          email: String(email).trim(),
+          delivery_country: 'UA',
+          estimated_delivery_date: eta(),
+          opt_in_style: 'CENTER_DIALOG'
+        };
+        if (products.length) o.products = products;
+        window.gapi.surveyoptin.render(o);
+      });
+    };
+    var s = document.createElement('script');
+    s.src = 'https://apis.google.com/js/platform.js?onload=renderOptIn';
+    s.async = true; s.defer = true;
+    document.head.appendChild(s);
+  };
+
+  var hooked = false;
+  var hook = function () {
+    if (hooked) return true;
+    var me = window.GLOBAL && window.GLOBAL.marketingEvents;
+    if (!me) return false;
+    hooked = true;
+    (me.checkout_success = me.checkout_success || []).push(function (orderId, cart, name, email) {
+      try { optIn(orderId, email, cart); } catch (e) {}
+    });
+    return true;
+  };
+  if (!hook()) document.addEventListener('DOMContentLoaded', hook);
+  window.addEventListener('load', hook);
+})();
+</script>

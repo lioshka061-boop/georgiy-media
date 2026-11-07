@@ -169,7 +169,9 @@
     var show = function (k) {
       player.className = 'avw-player avw-player--' + k;
       if (k === 'video') {
-        player.innerHTML = '<video src="' + review.video + '" controls playsinline preload="metadata" title="Відеоогляд"></video>';
+        var vu = String(review.video).replace(/^https:\/\/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\/([^/]+)\//, 'https://cdn.jsdelivr.net/gh/$1/$2@$3/');
+        var pu = vu.replace(/\/site\/([^/]+)\.mp4(\?.*)?$/, '/site/posters/$1.jpg');
+        player.innerHTML = '<video src="' + vu + '" poster="' + pu + '" controls playsinline preload="none" title="Відеоогляд"></video>';
       } else {
         player.innerHTML = '<iframe src="' + embedUrl[k](review[k]) + '" loading="lazy" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen title="Відеоогляд"></iframe>';
       }
@@ -644,7 +646,7 @@
     '.avh-rev-row{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(220px,1fr);gap:16px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x mandatory}' +
     '.avh-card{scroll-snap-align:start;background:#262626;border-radius:12px;overflow:hidden;display:flex;flex-direction:column}' +
     '.avh-vid{position:relative;aspect-ratio:9/16;background:#000;cursor:pointer}' +
-    '.avh-vid video{width:100%;height:100%;object-fit:cover;display:block}' +
+    '.avh-vid video,.avh-vid img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}' +
     '.avh-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(transparent 55%,rgba(0,0,0,.6));border:0;color:#fff;cursor:pointer}' +
     '.avh-play span{width:58px;height:58px;border-radius:2px;background:#F1C944;color:#1a1a1a;display:flex;align-items:center;justify-content:center}' +
     '.avh-play svg{width:26px;height:26px}' +
@@ -713,6 +715,9 @@
   var revAnchor = promo || ben;
   after(rev, revAnchor);
   rev.style.display = 'none';
+  /* raw.githubusercontent → jsDelivr CDN (швидше, з кешем); постер = site/posters/<ім'я>.jpg */
+  var cdn = function (u) { return String(u).replace(/^https:\/\/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\/([^/]+)\//, 'https://cdn.jsdelivr.net/gh/$1/$2@$3/'); };
+  var poster = function (u) { return cdn(u).replace(/\/site\/([^/]+)\.mp4(\?.*)?$/, '/site/posters/$1.jpg'); };
   var playSvg = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
   fetch(REVIEWS_URL + '?h=' + Math.floor(Date.now() / 3600000)).then(function (r) { return r.ok ? r.json() : null; }).then(function (list) {
     if (!list) return;
@@ -721,16 +726,26 @@
       .sort(function (a, b) { return String(b.date || '').localeCompare(String(a.date || '')); }).slice(0, 8);
     if (!items.length) return;
     rev.querySelector('.avh-rev-row').innerHTML = items.map(function (x) {
-      return '<article class="avh-card"><div class="avh-vid"><video src="' + esc(x.video) + '#t=0.5" preload="metadata" playsinline></video>' +
+      return '<article class="avh-card"><div class="avh-vid" data-v="' + esc(cdn(x.video)) + '"><img src="' + esc(poster(x.video)) + '" alt="" loading="lazy" decoding="async" onerror="this.style.display=\'none\'">' +
         (x.rating ? '<span class="avh-rate">' + x.rating + '/10</span>' : '') +
         '<button type="button" class="avh-play" aria-label="Дивитись огляд ' + esc(x.name) + '"><span>' + playSvg + '</span></button></div>' +
         '<div class="avh-card-b"><b>' + esc(x.name) + '</b><a class="avh-btn" href="' + esc(x.url) + '">До товару</a></div></article>';
     }).join('');
     [].forEach.call(rev.querySelectorAll('.avh-card'), function (c) {
-      var v = c.querySelector('video');
+      var box = c.querySelector('.avh-vid');
       c.querySelector('.avh-play').addEventListener('click', function () {
-        [].forEach.call(rev.querySelectorAll('video'), function (o) { if (o !== v) o.pause(); });
-        c.classList.add('is-playing'); v.controls = true; v.play();
+        [].forEach.call(rev.querySelectorAll('video'), function (o) { o.pause(); });
+        var v = box.querySelector('video');
+        if (!v) {
+          /* відео вантажиться лише після натискання — на головній 0 МБ відео */
+          v = document.createElement('video');
+          v.src = box.getAttribute('data-v');
+          v.controls = true; v.playsInline = true; v.preload = 'auto';
+          var img = box.querySelector('img'); if (img) v.poster = img.src;
+          box.insertBefore(v, box.firstChild);
+          if (img) img.remove();
+        }
+        c.classList.add('is-playing'); v.play();
       });
     });
     rev.style.display = '';
@@ -867,7 +882,7 @@
       var head = el.querySelector('.avp-head-t');
       if (head) {
         var pf = Math.min.apply(null, NS.map(function (k) { return Math.ceil(total(p, k) / k); }));
-        head.innerHTML = '<b>Частинами від <span>' + fmt(pf) + ' грн/міс</span></b><small>' + FREE + ' платежі без переплати</small>';
+        head.innerHTML = '<b>Частинами від <span>' + fmt(pf) + ' грн/міс</span></b><small>або ' + FREE + ' × ' + fmt(Math.ceil(p / FREE)) + ' грн — без переплати</small>';
       }
       if (opts.onChange) opts.onChange(n, per, t);
     };
@@ -1211,5 +1226,65 @@
     '.btn-toolbar--equal-width.avi-bar-moved > *{flex:1 1 0}';
   document.head.appendChild(st2);
   if (!moveBar()) { var n = 0, t = setInterval(function () { if (moveBar() || ++n > 30) clearInterval(t); }, 300); }
+})();
+</script>
+<!-- AVI SHOP: Google Customer Reviews — запит на відгук лише після оформлення замовлення, з реальними даними -->
+<script>
+(function () {
+  'use strict';
+  if (window.__aviGcr) return;
+  window.__aviGcr = true;
+
+  var MERCHANT_ID = 5834904959;
+  var DAYS = 4; /* відправка сьогодні/завтра + 1–3 дні Новою поштою */
+
+  var eta = function () {
+    var d = new Date(), n = 0;
+    while (n < DAYS) { d.setDate(d.getDate() + 1); if (d.getDay() !== 0) n++; }
+    return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+  };
+
+  var shown = false;
+  var optIn = function (orderId, email, cart) {
+    if (shown || !orderId || !email || !/@/.test(email)) return;
+    shown = true;
+    var products = [];
+    try {
+      var items = (cart && (cart.products || cart.items)) || [];
+      [].forEach.call(items, function (p) { var g = p && (p.gtin || p.barcode || p.ean); if (g) products.push({ gtin: String(g) }); });
+    } catch (e) {}
+    window.renderOptIn = function () {
+      window.gapi.load('surveyoptin', function () {
+        var o = {
+          merchant_id: MERCHANT_ID,
+          order_id: String(orderId),
+          email: String(email).trim(),
+          delivery_country: 'UA',
+          estimated_delivery_date: eta(),
+          opt_in_style: 'CENTER_DIALOG'
+        };
+        if (products.length) o.products = products;
+        window.gapi.surveyoptin.render(o);
+      });
+    };
+    var s = document.createElement('script');
+    s.src = 'https://apis.google.com/js/platform.js?onload=renderOptIn';
+    s.async = true; s.defer = true;
+    document.head.appendChild(s);
+  };
+
+  var hooked = false;
+  var hook = function () {
+    if (hooked) return true;
+    var me = window.GLOBAL && window.GLOBAL.marketingEvents;
+    if (!me) return false;
+    hooked = true;
+    (me.checkout_success = me.checkout_success || []).push(function (orderId, cart, name, email) {
+      try { optIn(orderId, email, cart); } catch (e) {}
+    });
+    return true;
+  };
+  if (!hook()) document.addEventListener('DOMContentLoaded', hook);
+  window.addEventListener('load', hook);
 })();
 </script>
