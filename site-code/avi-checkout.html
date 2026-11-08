@@ -1,0 +1,35 @@
+<!-- AVI SHOP: оформлення — вирівнювання поля телефону, «Доставка: безкоштовно» для Нової пошти -->
+<script>
+(function () {
+  'use strict';
+  if (window.__aviCo) return;
+  window.__aviCo = true;
+  if (!/checkout/.test(location.pathname)) return;
+
+  var st = document.createElement('style');
+  st.textContent =
+    /* обгортка віджета телефону була 36px при полі 48px — «+380» стояв вище за текст */
+    '.checkout .iti{display:block !important;height:48px}' +
+    '.checkout .iti__country-container{top:0 !important;bottom:0 !important;height:48px !important;display:flex !important;align-items:center}' +
+    '.checkout .iti__selected-country{height:100% !important;display:flex !important;align-items:center}' +
+    '.checkout .iti__selected-dial-code{font-size:15px !important;line-height:1 !important}' +
+    '.checkout .iti__tel-input{line-height:normal !important;padding-top:0 !important;padding-bottom:0 !important}';
+  document.head.appendChild(st);
+
+  /* Нова пошта (відділення 3, кур'єр 16, поштомат 17) безкоштовна — Хорошоп пише «уточнюється», поки не вибрано відділення */
+  var FREE = { '3': 1, '16': 1, '17': 1 };
+  var fix = function () {
+    var sel = document.querySelector('select[name="Delivery[delivery_type]"]');
+    var el = document.querySelector('.j-delivery-commission-sum');
+    if (!sel || !el) return;
+    if (FREE[sel.value] && /уточн/i.test(el.textContent)) el.textContent = 'безкоштовно';
+  };
+  var start = function () {
+    fix();
+    var root = document.querySelector('.checkout') || document.body;
+    new MutationObserver(function () { fix(); }).observe(root, { childList: true, subtree: true, characterData: true });
+    document.addEventListener('change', function () { setTimeout(fix, 50); setTimeout(fix, 600); }, true);
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+})();
+</script>

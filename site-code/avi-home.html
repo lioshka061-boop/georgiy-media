@@ -76,7 +76,13 @@
     '.avh-card.is-playing .avh-play{display:none}' +
     '.avh-rate{position:absolute;top:10px;left:10px;padding:4px 8px;border-radius:2px;background:#F1C944;color:#1a1a1a;font-size:12px;font-weight:800}' +
     '.avh-card-b{padding:12px 14px 14px;display:flex;flex-direction:column;gap:10px;flex:1}' +
-    '.avh-card-b b{font-size:13px;line-height:1.3}' +
+    '.avh-prod{display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;background:#fff;color:#1a1a1a !important;text-decoration:none !important;min-height:72px}' +
+    '.avh-prod-img{flex:none;width:56px;height:56px;border-radius:6px;background:#f2f2f2;overflow:hidden;display:flex;align-items:center;justify-content:center}' +
+    '.avh-prod-img img{width:100%;height:100%;object-fit:contain}' +
+    '.avh-prod-t{min-width:0;display:flex;flex-direction:column;gap:4px}' +
+    '.avh-prod-t b{font-size:12px;font-weight:700;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}' +
+    '.avh-prod-t i{font-style:normal;font-size:13px;font-weight:800;min-height:1em}' +
+    '.avh-prod:hover b{text-decoration:underline}' +
     '.avh-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:42px;padding:0 18px;border-radius:2px;background:#F1C944;color:#1a1a1a !important;font-size:13px;font-weight:700;text-decoration:none !important;border:0;cursor:pointer}' +
     '.avh-btn--ghost{background:transparent;color:#fff !important;border:1.5px solid rgba(255,255,255,.5)}' +
     '.avh-btn--dark{background:#1a1a1a;color:#fff !important}' +
@@ -149,10 +155,12 @@
       .sort(function (a, b) { return String(b.date || '').localeCompare(String(a.date || '')); }).slice(0, 8);
     if (!items.length) return;
     rev.querySelector('.avh-rev-row').innerHTML = items.map(function (x) {
-      return '<article class="avh-card"><div class="avh-vid" data-v="' + esc(cdn(x.video)) + '"><img src="' + esc(poster(x.video)) + '" alt="" loading="lazy" decoding="async" onerror="this.style.display=\'none\'">' +
+      return '<article class="avh-card"><div class="avh-vid" data-v="' + esc(cdn(x.video)) + '" data-raw="' + esc(x.video) + '"><img src="' + esc(poster(x.video)) + '" alt="" loading="lazy" decoding="async" onerror="this.style.display=\'none\'">' +
         (x.rating ? '<span class="avh-rate">' + x.rating + '/10</span>' : '') +
         '<button type="button" class="avh-play" aria-label="Дивитись огляд ' + esc(x.name) + '"><span>' + playSvg + '</span></button></div>' +
-        '<div class="avh-card-b"><b>' + esc(x.name) + '</b><a class="avh-btn" href="' + esc(x.url) + '">До товару</a></div></article>';
+        '<div class="avh-card-b"><a class="avh-prod" href="' + esc(x.url) + '" data-u="' + esc(x.url) + '">' +
+        '<span class="avh-prod-img"></span><span class="avh-prod-t"><b>' + esc(x.name) + '</b><i></i></span></a>' +
+        '<a class="avh-btn" href="' + esc(x.url) + '">До товару</a></div></article>';
     }).join('');
     [].forEach.call(rev.querySelectorAll('.avh-card'), function (c) {
       var box = c.querySelector('.avh-vid');
@@ -163,6 +171,11 @@
           /* відео вантажиться лише після натискання — на головній 0 МБ відео */
           v = document.createElement('video');
           v.src = box.getAttribute('data-v');
+          v.setAttribute('data-raw', box.getAttribute('data-raw'));
+          v.addEventListener('error', function () {
+            var raw = v.getAttribute('data-raw');
+            if (raw && v.src !== raw) { v.src = raw; v.play(); }
+          });
           v.controls = true; v.playsInline = true; v.preload = 'auto';
           var img = box.querySelector('img'); if (img) v.poster = img.src;
           box.insertBefore(v, box.firstChild);
@@ -172,6 +185,34 @@
       });
     });
     rev.style.display = '';
+    /* міні-картка товару: фото і ціна зі сторінки товару, коли блок з'являється на екрані */
+    var PK = 'avx_prod_v1', cache = {};
+    try { cache = JSON.parse(localStorage.getItem(PK) || '{}'); } catch (e) {}
+    var fill = function (a, d) {
+      if (!d) return;
+      if (d.img) a.querySelector('.avh-prod-img').innerHTML = '<img src="' + esc(d.img) + '" alt="" loading="lazy" decoding="async">';
+      if (d.price) a.querySelector('i').textContent = d.price.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' грн';
+    };
+    var getProd = function (a) {
+      var u = a.getAttribute('data-u'), c = cache[u];
+      if (c && Date.now() - c.t < 12 * 3600 * 1000) return fill(a, c);
+      fetch(u, { credentials: 'same-origin' }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (h) {
+        var doc = new DOMParser().parseFromString(h, 'text/html');
+        var img = doc.querySelector('meta[property="og:image"]'), pr = doc.querySelector('meta[itemprop="price"]');
+        var d = { t: Date.now(), img: img && img.content, price: pr && String(Math.round(+pr.content || 0)) };
+        if (d.price === '0') d.price = '';
+        cache[u] = d;
+        try { localStorage.setItem(PK, JSON.stringify(cache)); } catch (e) {}
+        fill(a, d);
+      })['catch'](function () {});
+    };
+    var prods = rev.querySelectorAll('.avh-prod');
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (en) {
+        en.forEach(function (e) { if (e.isIntersecting) { io.unobserve(e.target); getProd(e.target); } });
+      }, { rootMargin: '300px' });
+      [].forEach.call(prods, function (a) { io.observe(a); });
+    } else [].forEach.call(prods, getProd);
   })['catch'](function () {});
 
   /* 3. як ми працюємо */
