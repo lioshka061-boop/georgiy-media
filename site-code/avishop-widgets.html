@@ -359,7 +359,10 @@
     '#checkout-container > .checkout-step.__disabled::before{background:#e8e8e8}' +
     '.checkout .checkout-step-h{font-size:18px !important;font-weight:700 !important;color:#1a1a1a !important;margin:4px 0 14px}' +
     '.checkout .form-head label{font-size:13px;font-weight:600;color:#555}' +
-    '.checkout .field,.checkout .selectboxit-btn{height:48px !important;border:1px solid #cfcfcf !important;border-radius:2px !important;font-size:15px !important;padding:0 14px !important;transition:border-color .15s,box-shadow .15s}' +
+    '.checkout .field,.checkout .selectboxit-btn{height:48px !important;border:1px solid #cfcfcf !important;border-radius:2px !important;font-size:15px !important;transition:border-color .15s,box-shadow .15s}' +
+    /* телефон не чіпаємо зліва: там прапорець і +380 (віджет сам ставить відступ) */
+    '.checkout .field:not(.iti__tel-input),.checkout .selectboxit-btn{padding:0 14px !important}' +
+    '.checkout .field.iti__tel-input{padding-right:14px !important}' +
     '.checkout .selectboxit-btn{display:flex !important;align-items:center}' +
     '.checkout .field:focus,.checkout .selectboxit-btn:focus,.checkout .selectboxit-btn.selectboxit-focus{border-color:#1a1a1a !important;box-shadow:0 0 0 2px #F1C944 !important;outline:none}' +
     '.checkout textarea.field{height:96px !important;padding:12px 14px !important}' +
