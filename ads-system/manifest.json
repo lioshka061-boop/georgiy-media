@@ -1,0 +1,40 @@
+{
+  "account": "1006167428543770", "pixel": "944989518494428", "catalog": "1547390040485363",
+  "page_id": "1396674586865636", "ig_user_id": "17841458488153449",
+  "buyers_audience_exclude": "120251275063480411",
+  "campaigns": {
+    "cold_catalog": {"id": "120251168980160411", "adset": "120251168981260411", "daily_uah": 200},
+    "dm_instagram": {"id": "120251274836310411", "daily_uah": 150},
+    "retarget": {"id": "120251168984030411", "daily_uah": 75}
+  },
+  "product_sets": {"in_stock_5000": "4605003849788445", "top10": "1896220068201734"},
+  "dpa_adsets": {"viewed_30d": "120251275109240411", "cart_14d": "120251275086480411"},
+  "category_adsets": {
+    "stations": {"adset": "120251275064660411", "audience": "120251275063280411"},
+    "coffee": {"adset": "120251275064950411", "audience": "120251275063310411"},
+    "robots": {"adset": "120251275065490411", "audience": "120251275063380411"},
+    "vertical": {"adset": "120251275065850411", "audience": "120251275063440411"}
+  },
+  "products": {
+    "F2400 BLACK": {"name": "Fossibot F2400", "url": "https://avishop.com.ua/zariadna-stantsiia-fossibot-f2400-black-2048-vthod-2400-vt-lifepo4/", "url_key": "fossibot-f2400", "category": "stations",
+      "audience": "120251285296580411", "adset": "120251285298380411",
+      "ads": [
+        {"ad": "120251285299530411", "creative": "1154916020259191", "kind": "humor", "file": "out/hm_hf1_4x5.jpg", "price": 48399, "created": "2026-11-15"},
+        {"ad": "120251285299660411", "creative": "1831758808165164", "kind": "humor", "file": "out/hm_hf2_4x5.jpg", "price": 48399, "created": "2026-11-15"},
+        {"ad": "120251285299760411", "creative": "2355667345190281", "kind": "minimal", "price": 48399, "created": "2026-11-14"}]},
+    "R2500V2": {"name": "Allpowers R2500", "url": "https://avishop.com.ua/zariadna-stantsiia-allpowers-r2500-v2-2500-vt-lifepo4-sira/", "url_key": "allpowers-r2500", "category": "stations",
+      "audience": "120251285296600411", "adset": "120251285298760411",
+      "ads": [
+        {"ad": "120251285299900411", "creative": "2409259343154807", "kind": "humor", "file": "out/hm_ha1_4x5.jpg", "price": 46199, "created": "2026-11-15"},
+        {"ad": "120251285299960411", "creative": "1161203676421463", "kind": "minimal", "price": 46199, "created": "2026-11-14"}]}
+  },
+  "category_ads": {
+    "stations": [{"ad": "120251275066640411", "sku": "F2400 BLACK", "price": 48399}, {"ad": "120251275066880411", "sku": "F3600 PRO", "price": 86899}, {"ad": "120251275067080411", "sku": "R2500V2", "price": 46199}],
+    "coffee": [{"ad": "120251275067180411", "sku": "ECAM290.61.B", "price": 22176}, {"ad": "120251275067320411", "sku": "EP3249/70", "price": 25289}, {"ad": "120251275067520411", "sku": "EXAM440.55.G", "price": 33143},
+               {"ad": "120251285300570411", "sku": "ECAM290.61.B", "price": 22176, "kind": "humor"}, {"ad": "120251285301490411", "sku": "EP3249/70", "price": 25289, "kind": "humor"}],
+    "robots": [{"ad": "120251275067770411", "sku": "Q10PF52-00", "price": 9350}, {"ad": "120251275067880411", "sku": "RLS6LADC-6", "price": 23441}],
+    "vertical": [{"ad": "120251275068330411", "sku": "HHR31A", "price": 21945}, {"ad": "120251275068670411", "sku": "VZV26B", "price": 21945}]
+  },
+  "scenes_available": ["coffee","present","thumbs","shield","couch","shush","barista","flex"],
+  "spend_baseline": {"until": "2026-11-15", "meta_spend_uah_all_time": 5155.81}
+}
