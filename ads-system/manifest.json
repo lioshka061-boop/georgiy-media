@@ -184,6 +184,82 @@
      "created": "2026-11-16"
     }
    ]
+  },
+  "KLF05PBEU": {
+   "name": "Smeg KLF05PBEU",
+   "url": "https://avishop.com.ua/elektrochainyk-smeg-klf05pbeu-0.8-l-1400-vt-blakytnyi/",
+   "url_key": "klf05pbeu",
+   "category": "kitchen_small",
+   "audience": "120251310158940411",
+   "adset": "120251310161030411",
+   "ads": [
+    {
+     "ad": "120251310224070411",
+     "creative": "1462475128763283",
+     "kind": "minimal",
+     "file": "out/mn_klf05_4x5.jpg",
+     "price": 6578,
+     "created": "2026-11-17"
+    },
+    {
+     "ad": "120251310224370411",
+     "creative": "1500626498588731",
+     "kind": "humor",
+     "file": "out/hm_kl1_4x5.jpg",
+     "caption": "Чай на одного.|Чайник — теж.",
+     "scene": "coffee",
+     "price": 6578,
+     "created": "2026-11-17"
+    },
+    {
+     "ad": "120251310224710411",
+     "creative": "1129020766679696",
+     "kind": "humor",
+     "file": "out/hm_kl2_4x5.jpg",
+     "caption": "Подарунок мамі.|Вона ще не знає.",
+     "scene": "present",
+     "price": 6578,
+     "created": "2026-11-17"
+    }
+   ]
+  },
+  "DCD796P2": {
+   "name": "DeWALT DCD796P2",
+   "url": "https://avishop.com.ua/akumuliatornyi-udarnyi-dryl-shurupokrut-dewalt-dcd796p2-u-keisi-1.8-kh/",
+   "url_key": "dcd796p2",
+   "category": "tools",
+   "audience": "120251310159250411",
+   "adset": "120251310161270411",
+   "ads": [
+    {
+     "ad": "120251310225210411",
+     "creative": "2796424367427257",
+     "kind": "minimal",
+     "file": "out/mn_dcd_4x5.jpg",
+     "price": 16170,
+     "created": "2026-11-17"
+    },
+    {
+     "ad": "120251310225650411",
+     "creative": "2337734243733072",
+     "kind": "humor",
+     "file": "out/hm_dw1_4x5.jpg",
+     "caption": "Дружина: «повісь полицю».|Георгій: вже.",
+     "scene": "flex",
+     "price": 16170,
+     "created": "2026-11-17"
+    },
+    {
+     "ad": "120251310226000411",
+     "creative": "1538910701408637",
+     "kind": "humor",
+     "file": "out/hm_dw2_4x5.jpg",
+     "caption": "Полиця сама себе|не повісить.",
+     "scene": "thumbs",
+     "price": 16170,
+     "created": "2026-11-17"
+    }
+   ]
   }
  },
  "category_ads": {
@@ -274,19 +350,19 @@
   "meta_spend_uah_all_time": 5155.81
  },
  "top10_last": {
-  "date": "2026-11-16",
-  "source": "Meta product_id breakdown, cold catalog 7d (partial, 200 rows)",
+  "date": "2026-11-17",
+  "source": "Meta product_id breakdown, cold catalog 7d (partial, 200 rows); Clarity unavailable",
   "skus": [
-   "KSC01EGMWW",
    "3227TCS",
+   "KSC01EGMWW",
    "KLF05PBEU",
-   "GC772810",
-   "SMF03CREU",
-   "KLF03BLEU",
-   "EW6F428WUP",
    "DCD796P2",
+   "GC772810",
+   "KLF03BLEU",
+   "TSF01PGEU",
    "SM6682/10",
-   "TSF01PGEU"
+   "EP5441/50",
+   "MG20A7318AK"
   ]
  }
 }
