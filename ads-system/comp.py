@@ -33,7 +33,19 @@ def cut_white(path,crop=None):
         for dy,dx in ((1,0),(-1,0),(0,1),(0,-1)):
             ny,nx=y+dy,x+dx
             if 0<=ny<h and 0<=nx<w and white[ny,nx] and not bg[ny,nx]: bg[ny,nx]=1; dq.append((ny,nx))
-    mask=Image.fromarray(np.where(bg,0,255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(1.2))
+    fg=~bg.astype(bool)
+    # white/light products: background flood leaks into white panels -> fill orthogonal hull
+    if fg.any():
+        light=(a.min(axis=2)>200)[fg].mean()
+        if light>0.35:
+            # white product on white photo: cutting eats its edges -> clean white rounded card instead
+            nz=np.argwhere(a.min(axis=2)<245); y0,x0=nz.min(0); y1,x1=nz.max(0)
+            p=int(0.07*max(y1-y0,x1-x0)); h,w=fg.shape
+            y0,x0,y1,x1=max(0,y0-p),max(0,x0-p),min(h,y1+p),min(w,x1+p)
+            card=Image.new('RGB',(x1-x0+2*p,y1-y0+2*p),(255,255,255)); card.paste(im.crop((x0,y0,x1,y1)),(p,p))
+            m=Image.new('L',card.size,0); ImageDraw.Draw(m).rounded_rectangle((0,0,card.width-1,card.height-1),radius=int(0.08*min(card.size)),fill=255)
+            card=card.convert('RGBA'); card.putalpha(m); return card
+    mask=Image.fromarray(np.where(fg,255,0).astype(np.uint8)).filter(ImageFilter.GaussianBlur(1.2))
     out=im.convert('RGBA'); out.putalpha(mask)
     return out.crop(out.getbbox())
 
