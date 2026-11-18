@@ -35,7 +35,10 @@
   },
   "coffee": {
    "adset": "120251275064950411",
-   "audience": "120251275063310411"
+   "audience": "120251275063310411",
+   "excluded_product_audiences": [
+    "120251329549390411"
+   ]
   },
   "robots": {
    "adset": "120251275065490411",
@@ -61,7 +64,8 @@
      "kind": "humor",
      "file": "out/hm_hf1_4x5.jpg",
      "price": 48399,
-     "created": "2026-11-15"
+     "created": "2026-11-15",
+     "status": "PAUSED"
     },
     {
      "ad": "120251285299660411",
@@ -69,16 +73,20 @@
      "kind": "humor",
      "file": "out/hm_hf2_4x5.jpg",
      "price": 48399,
-     "created": "2026-11-15"
+     "created": "2026-11-15",
+     "status": "PAUSED"
     },
     {
      "ad": "120251285299760411",
      "creative": "2355667345190281",
      "kind": "minimal",
      "price": 48399,
-     "created": "2026-11-14"
+     "created": "2026-11-14",
+     "status": "PAUSED"
     }
-   ]
+   ],
+   "status": "PAUSED",
+   "paused": "2026-11-18 out of stock"
   },
   "R2500V2": {
    "name": "Allpowers R2500",
@@ -260,6 +268,88 @@
      "created": "2026-11-17"
     }
    ]
+  },
+  "EW6F428WUP": {
+   "name": "Electrolux EW6F428WUP (б/в)",
+   "url": "https://avishop.com.ua/pralna-mashyna-electrolux-ew6f428wup-8-kh-1200-ob-khv-b-u/",
+   "url_key": "ew6f428wup",
+   "category": "washers",
+   "audience": "120251329549350411",
+   "adset": "120251329550510411",
+   "ads": [
+    {
+     "ad": "120251329564000411",
+     "creative": "1030511750066307",
+     "kind": "minimal",
+     "file": "out/mn_ew6_4x5.jpg",
+     "price": 19635,
+     "created": "2026-11-18",
+     "sha": "e0132fe634b677ad8822b0c767263531dc602cf2"
+    },
+    {
+     "ad": "120251329564540411",
+     "creative": "1682648353647606",
+     "kind": "humor",
+     "file": "out/hm_ew1_4x5.jpg",
+     "caption": "Гора білизни.|Георгій на дивані.",
+     "scene": "couch",
+     "price": 19635,
+     "created": "2026-11-18",
+     "sha": "e0132fe634b677ad8822b0c767263531dc602cf2"
+    },
+    {
+     "ad": "120251329564750411",
+     "creative": "984728014251292",
+     "kind": "humor",
+     "file": "out/hm_ew2_4x5.jpg",
+     "caption": "Тазик і пральна дошка?|Георгій: ні, дякую.",
+     "scene": "shield",
+     "price": 19635,
+     "created": "2026-11-18",
+     "sha": "e0132fe634b677ad8822b0c767263531dc602cf2"
+    }
+   ]
+  },
+  "EP5441/50": {
+   "name": "Philips EP5441/50",
+   "url": "https://avishop.com.ua/kavomashyna-avtomatychna-philips-series-5400-ep5441-50-z-kapuchynatorom-lattego-ta-tyskom-15-bar/",
+   "url_key": "ep5441",
+   "category": "coffee",
+   "audience": "120251329549390411",
+   "adset": "120251329550570411",
+   "ads": [
+    {
+     "ad": "120251329565340411",
+     "creative": "1459421907254685",
+     "kind": "minimal",
+     "file": "out/mn_ep54_4x5.jpg",
+     "price": 28985,
+     "created": "2026-11-18",
+     "sha": "e0132fe634b677ad8822b0c767263531dc602cf2"
+    },
+    {
+     "ad": "120251329566350411",
+     "creative": "1666853104884257",
+     "kind": "humor",
+     "file": "out/hm_ep1_4x5.jpg",
+     "caption": "Піна як у кав'ярні.|Кав'ярня — на кухні.",
+     "scene": "coffee",
+     "price": 28985,
+     "created": "2026-11-18",
+     "sha": "e0132fe634b677ad8822b0c767263531dc602cf2"
+    },
+    {
+     "ad": "120251329568540411",
+     "creative": "1175481111673854",
+     "kind": "humor",
+     "file": "out/hm_ep2_4x5.jpg",
+     "caption": "Тихо!|Георгій збиває молоко.",
+     "scene": "shush",
+     "price": 28985,
+     "created": "2026-11-18",
+     "sha": "e0132fe634b677ad8822b0c767263531dc602cf2"
+    }
+   ]
   }
  },
  "category_ads": {
@@ -267,7 +357,9 @@
    {
     "ad": "120251275066640411",
     "sku": "F2400 BLACK",
-    "price": 48399
+    "price": 48399,
+    "status": "PAUSED",
+    "paused": "2026-11-18 out of stock"
    },
    {
     "ad": "120251275066880411",
@@ -350,19 +442,19 @@
   "meta_spend_uah_all_time": 5155.81
  },
  "top10_last": {
-  "date": "2026-11-17",
-  "source": "Meta product_id breakdown, cold catalog 7d (partial, 200 rows); Clarity unavailable",
+  "date": "2026-11-18",
+  "source": "Meta product_id breakdown, cold catalog 7d (link clicks; 200 rows, partial); Clarity unavailable (no device bridge)",
   "skus": [
-   "3227TCS",
+   "EW6F428WUP",
    "KSC01EGMWW",
-   "KLF05PBEU",
+   "3227TCS",
    "DCD796P2",
-   "GC772810",
-   "KLF03BLEU",
-   "TSF01PGEU",
-   "SM6682/10",
+   "KLF05PBEU",
    "EP5441/50",
-   "MG20A7318AK"
+   "GC772810",
+   "HCB 6370 SS",
+   "KHC29.J0SI",
+   "SMF03WHEU"
   ]
  }
 }
