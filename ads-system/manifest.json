@@ -83,10 +83,39 @@
      "price": 48399,
      "created": "2026-11-14",
      "status": "PAUSED"
+    },
+    {
+     "ad": "120251332705820411",
+     "creative": "2973423523024359",
+     "kind": "minimal",
+     "file": "out/mn_f2400b_4x5.jpg",
+     "price": 48399,
+     "created": "2026-11-18",
+     "sku": "F2400"
+    },
+    {
+     "ad": "120251332706000411",
+     "creative": "4863935843834659",
+     "kind": "humor",
+     "file": "out/hm_hf1_4x5.jpg",
+     "price": 48399,
+     "created": "2026-11-18",
+     "sku": "F2400"
+    },
+    {
+     "ad": "120251332706530411",
+     "creative": "2231682550722001",
+     "kind": "humor",
+     "file": "out/hm_hf2_4x5.jpg",
+     "price": 48399,
+     "created": "2026-11-18",
+     "sku": "F2400"
     }
    ],
-   "status": "PAUSED",
-   "paused": "2026-11-18 out of stock"
+   "status": "ACTIVE",
+   "restocked": "2026-11-18 as new card sku F2400",
+   "url_restock": "https://avishop.com.ua/zariadna-stantsiia-fossibot-f2400-black-2400-vt-lifepo4-2048-vthod/",
+   "sku_restock": "F2400"
   },
   "R2500V2": {
    "name": "Allpowers R2500",
@@ -284,7 +313,9 @@
      "file": "out/mn_ew6_4x5.jpg",
      "price": 19635,
      "created": "2026-11-18",
-     "sha": "e0132fe634b677ad8822b0c767263531dc602cf2"
+     "sha": "e0132fe634b677ad8822b0c767263531dc602cf2",
+     "status": "PAUSED",
+     "paused": "2026-11-18 ragged cutout (owner feedback)"
     },
     {
      "ad": "120251329564540411",
@@ -295,7 +326,9 @@
      "scene": "couch",
      "price": 19635,
      "created": "2026-11-18",
-     "sha": "e0132fe634b677ad8822b0c767263531dc602cf2"
+     "sha": "e0132fe634b677ad8822b0c767263531dc602cf2",
+     "status": "PAUSED",
+     "paused": "2026-11-18 ragged cutout (owner feedback)"
     },
     {
      "ad": "120251329564750411",
@@ -306,7 +339,40 @@
      "scene": "shield",
      "price": 19635,
      "created": "2026-11-18",
-     "sha": "e0132fe634b677ad8822b0c767263531dc602cf2"
+     "sha": "e0132fe634b677ad8822b0c767263531dc602cf2",
+     "status": "PAUSED",
+     "paused": "2026-11-18 ragged cutout (owner feedback)"
+    },
+    {
+     "ad": "120251332704430411",
+     "creative": "2144768979746267",
+     "kind": "minimal",
+     "file": "out/mn_ew6b_4x5.jpg",
+     "price": 19635,
+     "created": "2026-11-18",
+     "sha": "bac31111e0a2f348c97174f87c4499248f64d86c"
+    },
+    {
+     "ad": "120251332704680411",
+     "creative": "2711497659304599",
+     "kind": "humor",
+     "file": "out/hm_ew1b_4x5.jpg",
+     "caption": "Гора білизни.|Георгій на дивані.",
+     "scene": "couch",
+     "price": 19635,
+     "created": "2026-11-18",
+     "sha": "bac31111e0a2f348c97174f87c4499248f64d86c"
+    },
+    {
+     "ad": "120251332705500411",
+     "creative": "4738621926410779",
+     "kind": "humor",
+     "file": "out/hm_ew2b_4x5.jpg",
+     "caption": "Тазик і пральна дошка?|Георгій: ні, дякую.",
+     "scene": "shield",
+     "price": 19635,
+     "created": "2026-11-18",
+     "sha": "bac31111e0a2f348c97174f87c4499248f64d86c"
     }
    ]
   },
@@ -371,6 +437,12 @@
     "sku": "R2500V2",
     "price": 46199,
     "status": "PAUSED"
+   },
+   {
+    "ad": "120251332706880411",
+    "sku": "F2400",
+    "price": 48399,
+    "created": "2026-11-18"
    }
   ],
   "coffee": [
@@ -445,6 +517,7 @@
   "date": "2026-11-18",
   "source": "Meta product_id breakdown, cold catalog 7d (link clicks; 200 rows, partial); Clarity unavailable (no device bridge)",
   "skus": [
+   "F2400",
    "EW6F428WUP",
    "KSC01EGMWW",
    "3227TCS",
@@ -453,8 +526,10 @@
    "EP5441/50",
    "GC772810",
    "HCB 6370 SS",
-   "KHC29.J0SI",
-   "SMF03WHEU"
+   "KHC29.J0SI"
   ]
- }
+ },
+ "notes": [
+  "2026-11-18: comp.cut_white -> light products (>35% bright px) rendered as white rounded card, no cutout"
+ ]
 }
