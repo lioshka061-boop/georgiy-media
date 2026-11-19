@@ -416,6 +416,48 @@
      "sha": "e0132fe634b677ad8822b0c767263531dc602cf2"
     }
    ]
+  },
+  "HCB 6370 SS": {
+   "name": "Teka HCB 6370 SS",
+   "url": "https://avishop.com.ua/elektrychna-dukhovka-teka-hcb-6370-ss-obiem-70-l-z-hrylem-ta-konvektsiieiu/",
+   "url_key": "teka-hcb-6370",
+   "category": "ovens",
+   "audience": "120251344926130411",
+   "adset": "120251344927700411",
+   "ads": [
+    {
+     "ad": "120251344940670411",
+     "creative": "2306548640136255",
+     "kind": "minimal",
+     "file": "out/mn_hcb_4x5.jpg",
+     "price": 11550,
+     "created": "2026-11-19",
+     "sha": "1bdc0e4edb94364571c2522e5064d671fe682420"
+    },
+    {
+     "ad": "120251344941480411",
+     "creative": "1834697167603174",
+     "kind": "humor",
+     "file": "out/hm_hcb1_4x5.jpg",
+     "caption": "Гуска на свято?|Влізе ціла.",
+     "scene": "chef",
+     "price": 11550,
+     "created": "2026-11-19",
+     "sha": "1bdc0e4edb94364571c2522e5064d671fe682420"
+    },
+    {
+     "ad": "120251344942260411",
+     "creative": "1466627935668037",
+     "kind": "humor",
+     "file": "out/hm_hcb2_4x5.jpg",
+     "caption": "Теща о сьомій.|Пиріг уже пахне.",
+     "scene": "thumbs",
+     "price": 11550,
+     "created": "2026-11-19",
+     "sha": "1bdc0e4edb94364571c2522e5064d671fe682420"
+    }
+   ],
+   "status": "ACTIVE"
   }
  },
  "category_ads": {
@@ -507,29 +549,31 @@
   "couch",
   "shush",
   "barista",
-  "flex"
+  "flex",
+  "chef"
  ],
  "spend_baseline": {
   "until": "2026-11-15",
   "meta_spend_uah_all_time": 5155.81
  },
  "top10_last": {
-  "date": "2026-11-18",
-  "source": "Meta product_id breakdown, cold catalog 7d (link clicks; 200 rows, partial); Clarity unavailable (no device bridge)",
+  "date": "2026-11-19",
+  "source": "Meta product_id breakdown 7d, cold catalog + retarget (link clicks; 500 rows cap, partial); Clarity unavailable (no device bridge)",
   "skus": [
-   "F2400",
    "EW6F428WUP",
-   "KSC01EGMWW",
    "3227TCS",
+   "KSC01EGMWW",
    "DCD796P2",
-   "KLF05PBEU",
-   "EP5441/50",
-   "GC772810",
    "HCB 6370 SS",
-   "KHC29.J0SI"
+   "EP5441/50",
+   "WUV8612WPBSE",
+   "KHC29.J0SI",
+   "KLF05PBEU",
+   "KLF05CREU"
   ]
  },
  "notes": [
-  "2026-11-18: comp.cut_white -> light products (>35% bright px) rendered as white rounded card, no cutout"
+  "2026-11-18: comp.cut_white -> light products (>35% bright px) rendered as white rounded card, no cutout",
+  "2026-11-19: new product group Teka HCB 6370 SS (no category adset for ovens; excluded buyers only). 8 active product groups now = cap."
  ]
 }
