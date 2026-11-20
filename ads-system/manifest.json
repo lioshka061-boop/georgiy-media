@@ -557,23 +557,40 @@
   "meta_spend_uah_all_time": 5155.81
  },
  "top10_last": {
-  "date": "2026-11-19",
-  "source": "Meta product_id breakdown 7d, cold catalog + retarget (link clicks; 500 rows cap, partial); Clarity unavailable (no device bridge)",
+  "date": "2026-11-20",
+  "source": "Meta product_id breakdown 7d, cold catalog + retarget ads with >50 UAH spend (link clicks; 500 rows cap, partial); Clarity unavailable (no device bridge)",
   "skus": [
    "EW6F428WUP",
-   "3227TCS",
    "KSC01EGMWW",
-   "DCD796P2",
+   "3227TCS",
    "HCB 6370 SS",
+   "DCD796P2",
    "EP5441/50",
    "WUV8612WPBSE",
    "KHC29.J0SI",
-   "KLF05PBEU",
+   "NA231/00",
    "KLF05CREU"
   ]
  },
  "notes": [
   "2026-11-18: comp.cut_white -> light products (>35% bright px) rendered as white rounded card, no cutout",
-  "2026-11-19: new product group Teka HCB 6370 SS (no category adset for ovens; excluded buyers only). 8 active product groups now = cap."
- ]
+  "2026-11-19: new product group Teka HCB 6370 SS (no category adset for ovens; excluded buyers only). 8 active product groups now = cap.",
+  "2026-11-20: prices/stock all match feed; top-6 all already have groups (8/8 cap) -> no new groups; DPA viewed_30d got new text creative (freq 3.04); product WCAs show <=1000 (Meta floor), most product adsets 0 delivery 7d."
+ ],
+ "dpa_ads": {
+  "viewed_30d": [
+   {
+    "ad": "120251275110770411",
+    "creative": "1796325694988959"
+   },
+   {
+    "ad": "120251360570410411",
+    "creative": "1082212428187060",
+    "kind": "dpa_text",
+    "message": "Подумав двічі? Георгій теж так робить, а потім купує 😄",
+    "created": "2026-11-20",
+    "reason": "adset frequency 7d 3.04 > 3"
+   }
+  ]
+ }
 }
